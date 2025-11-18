@@ -1,0 +1,117 @@
+# Azure Pipeline for Backend API
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - backend/**
+      - shared/**
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  nodeVersion: '18.x'
+
+stages:
+  - stage: Build
+    displayName: 'Build and Test'
+    jobs:
+      - job: BuildBackend
+        displayName: 'Build Backend API'
+        steps:
+          - task: NodeTool@0
+            displayName: 'Use Node.js $(nodeVersion)'
+            inputs:
+              versionSpec: '$(nodeVersion)'
+
+          - script: |
+              cd shared
+              npm ci
+              npm run build
+            displayName: 'Build Shared Package'
+
+          - script: |
+              cd backend
+              npm ci
+            displayName: 'Install Backend Dependencies'
+
+          - script: |
+              cd backend
+              npx prisma generate
+            displayName: 'Generate Prisma Client'
+
+          - script: |
+              cd backend
+              npm run lint
+            displayName: 'Run Linter'
+
+          - script: |
+              cd backend
+              npm test
+            displayName: 'Run Tests'
+            continueOnError: true
+
+          - script: |
+              cd backend
+              npm run build
+            displayName: 'Build Backend'
+
+          - task: CopyFiles@2
+            displayName: 'Copy Files to Staging'
+            inputs:
+              SourceFolder: 'backend'
+              Contents: |
+                dist/**
+                node_modules/**
+                package.json
+                prisma/**
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/backend'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Artifact'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)/backend'
+              ArtifactName: 'backend-drop'
+
+  - stage: Deploy
+    displayName: 'Deploy to Azure'
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: DeployBackend
+        displayName: 'Deploy Backend API'
+        environment: 'production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadBuildArtifacts@0
+                  inputs:
+                    buildType: 'current'
+                    downloadType: 'single'
+                    artifactName: 'backend-drop'
+                    downloadPath: '$(System.ArtifactsDirectory)'
+
+                - task: AzureWebApp@1
+                  displayName: 'Deploy to Azure App Service'
+                  inputs:
+                    azureSubscription: '<YOUR_SERVICE_CONNECTION>'
+                    appType: 'webAppLinux'
+                    appName: 'aem-portal-api'
+                    package: '$(System.ArtifactsDirectory)/backend-drop/**/*.zip'
+                    runtimeStack: 'NODE|18-lts'
+                    startUpCommand: 'node dist/server.js'
+
+                - task: AzureCLI@2
+                  displayName: 'Run Database Migrations'
+                  inputs:
+                    azureSubscription: '<YOUR_SERVICE_CONNECTION>'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      az webapp ssh --name aem-portal-api --resource-group aem-portal-rg --command "cd /home/site/wwwroot && npx prisma migrate deploy"

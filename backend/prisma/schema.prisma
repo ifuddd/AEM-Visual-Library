@@ -1,0 +1,233 @@
+// Prisma schema for AEM Visual Portal
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Component Models
+// ============================================
+
+enum ComponentStatus {
+  STABLE
+  EXPERIMENTAL
+  DEPRECATED
+}
+
+enum UpdateSource {
+  AZURE
+  MANUAL
+}
+
+model Component {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  description String   @db.Text
+  tags        Json     @default("[]")
+  status      ComponentStatus @default(STABLE)
+
+  // Ownership
+  ownerEmail  String?
+  ownerTeam   String?
+
+  // Links
+  repoLink     String?
+  azureWikiPath String?
+  azureWikiUrl  String?
+  figmaLinks    Json     @default("[]") // Array of strings
+
+  // AEM Metadata
+  aemComponentPath       String?
+  aemDialogSchema        Json?
+  aemAllowedChildren     String[]
+  aemTemplateConstraints Json?
+  aemLimitations         String[]
+
+  // Visual Assets
+  thumbnailUrl           String?
+  screenshotAuthorUrl    String?
+  screenshotPublishedUrl String?
+
+  // Sync metadata
+  lastSyncedAt     DateTime?
+  lastUpdatedBy    String?
+  lastUpdatedSource UpdateSource @default(AZURE)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  contributionRequests ContributionRequest[]
+  patternComponents    PatternComponent[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([ownerTeam])
+}
+
+// ============================================
+// Fragment Models
+// ============================================
+
+enum FragmentType {
+  CONTENT_FRAGMENT
+  EXPERIENCE_FRAGMENT
+}
+
+model Fragment {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  type        FragmentType
+  title       String
+  description String   @db.Text
+  schema      Json?
+  variations  Json     @default("[]") // Array of variation objects
+  sampleData  Json?
+  tags        Json     @default("[]")
+
+  // Links
+  azureWikiPath String?
+  azureWikiUrl  String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([type])
+}
+
+// ============================================
+// Pattern Models
+// ============================================
+
+model Pattern {
+  id             String   @id @default(uuid())
+  slug           String   @unique
+  title          String
+  description    String   @db.Text
+  usageGuidance  String?  @db.Text
+  thumbnailUrl   String?
+  tags           Json     @default("[]")
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  components PatternComponent[]
+
+  @@index([slug])
+}
+
+// Join table for Pattern-Component many-to-many
+model PatternComponent {
+  id          String @id @default(uuid())
+  patternId   String
+  componentId String
+  order       Int    @default(0)
+
+  pattern   Pattern   @relation(fields: [patternId], references: [id], onDelete: Cascade)
+  component Component @relation(fields: [componentId], references: [id], onDelete: Cascade)
+
+  @@unique([patternId, componentId])
+  @@index([patternId])
+  @@index([componentId])
+}
+
+// ============================================
+// Sync Models
+// ============================================
+
+enum SyncStatus {
+  SUCCESS
+  PARTIAL
+  FAILED
+}
+
+model SyncLog {
+  id               String     @id @default(uuid())
+  syncStartedAt    DateTime
+  syncCompletedAt  DateTime?
+  status           SyncStatus
+  pagesProcessed   Int        @default(0)
+  pagesFailed      Int        @default(0)
+  errorLog         Json?      // Array of error objects
+  createdAt        DateTime   @default(now())
+
+  @@index([syncStartedAt])
+  @@index([status])
+}
+
+// ============================================
+// Contribution Models
+// ============================================
+
+enum ContributionRequestType {
+  NEW_COMPONENT
+  UPDATE_SCREENSHOT
+  FIX_METADATA
+  OTHER
+}
+
+enum ContributionRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+model ContributionRequest {
+  id                String                     @id @default(uuid())
+  createdByEmail    String
+  createdByName     String
+  requestType       ContributionRequestType
+  componentId       String?
+  payload           Json // Flexible payload for different request types
+  status            ContributionRequestStatus  @default(PENDING)
+  reviewerEmail     String?
+  reviewerNotes     String?                    @db.Text
+  devopsWorkItemId  String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  component Component? @relation(fields: [componentId], references: [id])
+
+  @@index([status])
+  @@index([createdByEmail])
+  @@index([componentId])
+}
+
+// ============================================
+// User Models
+// ============================================
+
+enum UserRole {
+  VIEWER
+  CONTRIBUTOR
+  DOC_OWNER
+  ADMIN
+}
+
+model User {
+  azureAdOid  String    @id
+  email       String    @unique
+  displayName String
+  role        UserRole  @default(VIEWER)
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([email])
+  @@index([role])
+}

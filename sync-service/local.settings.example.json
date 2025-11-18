@@ -1,0 +1,15 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/aem_portal",
+    "AZURE_DEVOPS_ORG": "your-organization",
+    "AZURE_DEVOPS_PROJECT": "your-project",
+    "AZURE_DEVOPS_WIKI_ID": "your-wiki-id",
+    "AZURE_DEVOPS_PAT": "your-personal-access-token",
+    "AZURE_STORAGE_ACCOUNT": "your-storage-account",
+    "AZURE_STORAGE_KEY": "your-storage-key",
+    "AZURE_STORAGE_CONTAINER": "component-assets"
+  }
+}

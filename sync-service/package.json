@@ -1,0 +1,27 @@
+{
+  "name": "@aem-portal/sync-service",
+  "version": "1.0.0",
+  "description": "Azure Function for syncing Wiki content to AEM Portal",
+  "scripts": {
+    "build": "tsc",
+    "dev": "func start",
+    "start": "func start",
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {
+    "@aem-portal/shared": "*",
+    "@azure/functions": "^4.0.0",
+    "@azure/identity": "^4.0.0",
+    "@azure/storage-blob": "^12.17.0",
+    "@prisma/client": "^5.7.1",
+    "axios": "^1.6.2",
+    "dotenv": "^16.3.1",
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "@azure/functions-core-tools": "^4.0.5382",
+    "@types/node": "^20.10.5",
+    "prisma": "^5.7.1",
+    "typescript": "^5.3.3"
+  }
+}
