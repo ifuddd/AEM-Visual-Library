@@ -49,6 +49,32 @@ const componentInputSchema = Joi.object({
   }).optional(),
 });
 
+const componentUpdateSchema = Joi.object({
+  slug: Joi.string().optional(),
+  title: Joi.string().optional(),
+  description: Joi.string().optional(),
+  tags: Joi.array().items(Joi.string()).optional(),
+  status: Joi.string().valid(...Object.values(ComponentStatus)).optional(),
+  ownerEmail: Joi.string().email().optional(),
+  ownerTeam: Joi.string().optional(),
+  repoLink: Joi.string().uri().optional(),
+  azureWikiPath: Joi.string().optional(),
+  azureWikiUrl: Joi.string().uri().optional(),
+  figmaLinks: Joi.array().items(Joi.string().uri()).optional(),
+  aemMetadata: Joi.object({
+    componentPath: Joi.string().optional(),
+    dialogSchema: Joi.object().optional(),
+    allowedChildren: Joi.array().items(Joi.string()).optional(),
+    templateConstraints: Joi.object().optional(),
+    limitations: Joi.array().items(Joi.string()).optional(),
+  }).optional(),
+  visualAssets: Joi.object({
+    thumbnailUrl: Joi.string().uri().optional(),
+    screenshotAuthorUrl: Joi.string().uri().optional(),
+    screenshotPublishedUrl: Joi.string().uri().optional(),
+  }).optional(),
+});
+
 /**
  * GET /api/components
  * Get all components with filters and pagination
@@ -107,11 +133,12 @@ router.get('/teams', authenticate, async (req, res) => {
 });
 
 /**
- * GET /api/components/:id
- * Get component by ID
+ * GET /api/components/slug/:slug
+ * Get component by slug
+ * Note: This MUST come before /:id to avoid slug being treated as an ID
  */
-router.get('/:id', authenticate, async (req, res) => {
-  const component = await componentService.getComponentById(req.params.id);
+router.get('/slug/:slug', authenticate, async (req, res) => {
+  const component = await componentService.getComponentBySlug(req.params.slug);
 
   if (!component) {
     return res.status(404).json({
@@ -130,11 +157,11 @@ router.get('/:id', authenticate, async (req, res) => {
 });
 
 /**
- * GET /api/components/slug/:slug
- * Get component by slug
+ * GET /api/components/:id
+ * Get component by ID
  */
-router.get('/slug/:slug', authenticate, async (req, res) => {
-  const component = await componentService.getComponentBySlug(req.params.slug);
+router.get('/:id', authenticate, async (req, res) => {
+  const component = await componentService.getComponentById(req.params.id);
 
   if (!component) {
     return res.status(404).json({
@@ -179,7 +206,7 @@ router.put(
   '/:id',
   authenticate,
   authorize(UserRole.DOC_OWNER, UserRole.ADMIN),
-  validate({ body: componentInputSchema.fork(Object.keys(componentInputSchema.describe().keys), (schema) => schema.optional()) }),
+  validate({ body: componentUpdateSchema }),
   async (req, res) => {
     const component = await componentService.updateComponent(req.params.id, req.body);
 

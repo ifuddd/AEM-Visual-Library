@@ -10,14 +10,21 @@ interface SearchBarProps {
 export function SearchBar({ value, onChange }: SearchBarProps) {
   const [localValue, setLocalValue] = useState(value);
 
-  // Debounce search
+  // Sync local value with prop when it changes externally (e.g., filter reset)
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  // Debounce search - onChange is intentionally excluded from deps
+  // to prevent infinite re-renders (it's recreated on every parent render)
   useEffect(() => {
     const timer = setTimeout(() => {
       onChange(localValue);
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [localValue, onChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localValue]);
 
   return (
     <div className="relative">

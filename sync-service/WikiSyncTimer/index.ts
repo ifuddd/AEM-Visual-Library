@@ -10,7 +10,16 @@ import {
   FragmentType,
 } from '@aem-portal/shared';
 
-const prisma = new PrismaClient();
+// Singleton pattern for Prisma in serverless
+// Reuses connection across warm starts
+let prisma: PrismaClient;
+
+function getPrismaClient(): PrismaClient {
+  if (!prisma) {
+    prisma = new PrismaClient();
+  }
+  return prisma;
+}
 
 // Configuration from environment
 const config = {
@@ -28,18 +37,44 @@ const config = {
 };
 
 /**
+ * Validate required environment variables
+ */
+function validateConfig(context: Context): void {
+  const required = [
+    'DATABASE_URL',
+    'AZURE_DEVOPS_ORG',
+    'AZURE_DEVOPS_PROJECT',
+    'AZURE_DEVOPS_WIKI_ID',
+    'AZURE_DEVOPS_PAT',
+  ];
+
+  const missing = required.filter(key => !process.env[key]);
+
+  if (missing.length > 0) {
+    const error = `Missing required environment variables: ${missing.join(', ')}`;
+    context.log.error(error);
+    throw new Error(error);
+  }
+}
+
+/**
  * Timer trigger function - runs every 6 hours
  */
 const timerTrigger: AzureFunction = async function (
   context: Context,
   myTimer: any
 ): Promise<void> {
+  // Validate configuration first
+  validateConfig(context);
+
   const syncStartedAt = new Date();
   context.log('Wiki sync started at:', syncStartedAt.toISOString());
 
   let pagesProcessed = 0;
   let pagesFailed = 0;
   const errors: any[] = [];
+
+  const client = getPrismaClient();
 
   try {
     // 1. Fetch list of wiki pages
@@ -71,7 +106,7 @@ const timerTrigger: AzureFunction = async function (
         ? SyncStatus.PARTIAL
         : SyncStatus.FAILED;
 
-    await prisma.syncLog.create({
+    await client.syncLog.create({
       data: {
         syncStartedAt,
         syncCompletedAt,
@@ -89,7 +124,7 @@ const timerTrigger: AzureFunction = async function (
     context.log.error('Sync failed:', error);
 
     // Log failed sync
-    await prisma.syncLog.create({
+    await client.syncLog.create({
       data: {
         syncStartedAt,
         syncCompletedAt: new Date(),
@@ -99,9 +134,8 @@ const timerTrigger: AzureFunction = async function (
         errorLog: [{ error: error.message, timestamp: new Date() }],
       },
     });
-  } finally {
-    await prisma.$disconnect();
   }
+  // Note: No finally block - we keep the connection warm for future invocations
 };
 
 /**
@@ -229,7 +263,8 @@ async function syncComponent(
     lastUpdatedSource: UpdateSource.AZURE,
   };
 
-  await prisma.component.upsert({
+  const client = getPrismaClient();
+  await client.component.upsert({
     where: { slug },
     update: data,
     create: data,
@@ -261,7 +296,8 @@ async function syncFragment(
     azureWikiUrl: wikiUrl,
   };
 
-  await prisma.fragment.upsert({
+  const client = getPrismaClient();
+  await client.fragment.upsert({
     where: { slug },
     update: data,
     create: data,

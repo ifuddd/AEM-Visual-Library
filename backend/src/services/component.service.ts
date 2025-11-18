@@ -34,11 +34,11 @@ class ComponentService {
       where.status = { in: filters.status as any };
     }
 
-    // Apply tags filter (tags is a JSON field containing array)
+    // Apply tags filter (tags is a String[] field - match if any tag matches)
     if (filters.tags && filters.tags.length > 0) {
       where.tags = {
-        array_contains: filters.tags,
-      } as any;
+        hasSome: filters.tags,
+      };
     }
 
     // Apply owner team filter
@@ -133,43 +133,59 @@ class ComponentService {
    * Update a component
    */
   async updateComponent(id: string, input: Partial<ComponentInput>): Promise<Component> {
-    const component = await prisma.component.update({
-      where: { id },
-      data: {
-        title: input.title,
-        description: input.description,
-        tags: input.tags,
-        status: input.status,
-        ownerEmail: input.ownerEmail,
-        ownerTeam: input.ownerTeam,
-        repoLink: input.repoLink,
-        azureWikiPath: input.azureWikiPath,
-        azureWikiUrl: input.azureWikiUrl,
-        figmaLinks: input.figmaLinks,
-        aemComponentPath: input.aemMetadata?.componentPath,
-        aemDialogSchema: input.aemMetadata?.dialogSchema as any,
-        aemAllowedChildren: input.aemMetadata?.allowedChildren,
-        aemTemplateConstraints: input.aemMetadata?.templateConstraints as any,
-        aemLimitations: input.aemMetadata?.limitations,
-        thumbnailUrl: input.visualAssets?.thumbnailUrl,
-        screenshotAuthorUrl: input.visualAssets?.screenshotAuthorUrl,
-        screenshotPublishedUrl: input.visualAssets?.screenshotPublishedUrl,
-      },
-    });
+    try {
+      const component = await prisma.component.update({
+        where: { id },
+        data: {
+          title: input.title,
+          description: input.description,
+          tags: input.tags,
+          status: input.status,
+          ownerEmail: input.ownerEmail,
+          ownerTeam: input.ownerTeam,
+          repoLink: input.repoLink,
+          azureWikiPath: input.azureWikiPath,
+          azureWikiUrl: input.azureWikiUrl,
+          figmaLinks: input.figmaLinks,
+          aemComponentPath: input.aemMetadata?.componentPath,
+          aemDialogSchema: input.aemMetadata?.dialogSchema as any,
+          aemAllowedChildren: input.aemMetadata?.allowedChildren,
+          aemTemplateConstraints: input.aemMetadata?.templateConstraints as any,
+          aemLimitations: input.aemMetadata?.limitations,
+          thumbnailUrl: input.visualAssets?.thumbnailUrl,
+          screenshotAuthorUrl: input.visualAssets?.screenshotAuthorUrl,
+          screenshotPublishedUrl: input.visualAssets?.screenshotPublishedUrl,
+        },
+      });
 
-    logger.info(`Component updated: ${component.slug}`);
-    return this.mapToComponent(component);
+      logger.info(`Component updated: ${component.slug}`);
+      return this.mapToComponent(component);
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        // Prisma RecordNotFound error
+        throw new ApiError('Component not found', 404, 'NOT_FOUND');
+      }
+      throw error;
+    }
   }
 
   /**
    * Delete a component
    */
   async deleteComponent(id: string): Promise<void> {
-    await prisma.component.delete({
-      where: { id },
-    });
+    try {
+      await prisma.component.delete({
+        where: { id },
+      });
 
-    logger.info(`Component deleted: ${id}`);
+      logger.info(`Component deleted: ${id}`);
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        // Prisma RecordNotFound error
+        throw new ApiError('Component not found', 404, 'NOT_FOUND');
+      }
+      throw error;
+    }
   }
 
   /**

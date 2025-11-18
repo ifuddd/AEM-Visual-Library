@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MsalProvider } from '@azure/msal-react';
 import { PublicClientApplication } from '@azure/msal-browser';
 import { useState } from 'react';
+import { ErrorBoundary } from './ErrorBoundary';
 
 const msalConfig = {
   auth: {
@@ -33,8 +34,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <MsalProvider instance={msalInstance}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </MsalProvider>
+    <ErrorBoundary>
+      <MsalProvider instance={msalInstance}>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      </MsalProvider>
+    </ErrorBoundary>
   );
 }

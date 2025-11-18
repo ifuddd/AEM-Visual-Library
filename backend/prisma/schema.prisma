@@ -29,7 +29,7 @@ model Component {
   slug        String   @unique
   title       String
   description String   @db.Text
-  tags        Json     @default("[]")
+  tags        String[] @default([])
   status      ComponentStatus @default(STABLE)
 
   // Ownership
@@ -40,7 +40,7 @@ model Component {
   repoLink     String?
   azureWikiPath String?
   azureWikiUrl  String?
-  figmaLinks    Json     @default("[]") // Array of strings
+  figmaLinks    String[] @default([])
 
   // AEM Metadata
   aemComponentPath       String?
@@ -90,7 +90,7 @@ model Fragment {
   schema      Json?
   variations  Json     @default("[]") // Array of variation objects
   sampleData  Json?
-  tags        Json     @default("[]")
+  tags        String[] @default([])
 
   // Links
   azureWikiPath String?
@@ -115,7 +115,7 @@ model Pattern {
   description    String   @db.Text
   usageGuidance  String?  @db.Text
   thumbnailUrl   String?
-  tags           Json     @default("[]")
+  tags           String[] @default([])
 
   // Timestamps
   createdAt DateTime @default(now())
