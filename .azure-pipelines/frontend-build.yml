@@ -1,0 +1,84 @@
+# Azure Pipeline for Frontend
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - frontend/**
+      - shared/**
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  nodeVersion: '18.x'
+
+stages:
+  - stage: Build
+    displayName: 'Build Frontend'
+    jobs:
+      - job: BuildFrontend
+        displayName: 'Build Next.js App'
+        steps:
+          - task: NodeTool@0
+            displayName: 'Use Node.js $(nodeVersion)'
+            inputs:
+              versionSpec: '$(nodeVersion)'
+
+          - script: |
+              cd shared
+              npm ci
+              npm run build
+            displayName: 'Build Shared Package'
+
+          - script: |
+              cd frontend
+              npm ci
+            displayName: 'Install Frontend Dependencies'
+
+          - script: |
+              cd frontend
+              npm run lint
+            displayName: 'Run Linter'
+
+          - script: |
+              cd frontend
+              npm run type-check
+            displayName: 'Type Check'
+
+          - script: |
+              cd frontend
+              npm run build
+            displayName: 'Build Frontend'
+            env:
+              NEXT_PUBLIC_API_URL: $(NEXT_PUBLIC_API_URL)
+              NEXT_PUBLIC_AZURE_AD_CLIENT_ID: $(NEXT_PUBLIC_AZURE_AD_CLIENT_ID)
+              NEXT_PUBLIC_AZURE_AD_TENANT_ID: $(NEXT_PUBLIC_AZURE_AD_TENANT_ID)
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Artifact'
+            inputs:
+              PathtoPublish: 'frontend/.next'
+              ArtifactName: 'frontend-drop'
+
+  - stage: Deploy
+    displayName: 'Deploy to Azure Static Web Apps'
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: DeployFrontend
+        displayName: 'Deploy Frontend'
+        environment: 'production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureStaticWebApp@0
+                  inputs:
+                    app_location: 'frontend'
+                    api_location: ''
+                    output_location: '.next'
+                    azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_TOKEN)
