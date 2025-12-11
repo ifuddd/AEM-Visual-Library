@@ -6,6 +6,7 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
+    --border: 214.3 31.8% 91.4%;
   }
 
   .dark {
@@ -13,9 +14,8 @@
     --foreground: 210 40% 98%;
   }
 
-  * {
-    @apply border-border;
-  }
+
+
 
   body {
     @apply bg-white text-gray-900;
@@ -42,7 +42,7 @@
 
 /* Markdown content styles */
 .markdown-content {
-  @apply prose prose-sm max-w-none;
+  @apply max-w-none;
 }
 
 .markdown-content h1 {
