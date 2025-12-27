@@ -40,6 +40,12 @@ function getKey(header: any, callback: any) {
 
 /**
  * Middleware to verify Azure AD JWT token
+ *
+ * ⚠️ DEVELOPMENT MODE: When NODE_ENV=development and no Azure AD config,
+ * this middleware bypasses authentication and uses a mock admin user.
+ *
+ * 🚨 IMPORTANT: Configure Azure AD before deploying to production!
+ * See DEPLOYMENT_NOTES.md for setup instructions.
  */
 export const authenticate = async (
   req: Request,
@@ -47,6 +53,49 @@ export const authenticate = async (
   next: NextFunction
 ) => {
   try {
+    // DEVELOPMENT MODE: Bypass Azure AD if not configured
+    const isDevelopment = config.nodeEnv === 'development';
+    const hasAzureAdConfig = config.azureAd.tenantId && config.azureAd.clientId;
+
+    if (isDevelopment && !hasAzureAdConfig) {
+      logger.warn('⚠️  Development mode: Using mock authentication (Azure AD not configured)');
+      logger.warn('🚨 Configure Azure AD before deploying to production!');
+
+      // Get or create development admin user
+      let user = await prisma.user.findUnique({
+        where: { email: 'dev@localhost' },
+      });
+
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            azureAdOid: 'dev-local-oid-00000000-0000-0000-0000-000000000000',
+            email: 'dev@localhost',
+            displayName: 'Development Admin',
+            role: UserRole.ADMIN,
+            lastLoginAt: new Date(),
+          },
+        });
+        logger.info('✅ Created development admin user: dev@localhost');
+      } else {
+        await prisma.user.update({
+          where: { email: 'dev@localhost' },
+          data: { lastLoginAt: new Date() },
+        });
+      }
+
+      // Attach mock user to request
+      req.user = {
+        azureAdOid: user.azureAdOid,
+        email: user.email,
+        displayName: user.displayName,
+        role: user.role as UserRole,
+      };
+
+      return next();
+    }
+
+    // PRODUCTION MODE: Require Azure AD authentication
     // Extract token from Authorization header
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
