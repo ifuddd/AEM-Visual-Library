@@ -6,6 +6,8 @@ import { config } from '../config';
 import prisma from '../db/prisma';
 import logger from '../utils/logger';
 
+
+
 // Extend Express Request to include user
 declare global {
   namespace Express {
@@ -47,6 +49,20 @@ export const authenticate = async (
   next: NextFunction
 ) => {
   try {
+    // ✅ DEV MODE AUTH BYPASS
+    if (
+      process.env.NODE_ENV === 'development' &&
+      process.env.AUTH_BYPASS === 'true'
+    ) {
+      req.user = {
+        azureAdOid: 'dev-user',
+        email: 'dev@local',
+        displayName: 'Developer',
+        role: UserRole.VIEWER,
+      };
+      return next();
+    }
+
     // Extract token from Authorization header
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -75,6 +91,9 @@ export const authenticate = async (
       );
     });
 
+    // (rest of your existing code continues...)
+
+
     // Get or create user in database
     const email = decoded.email || decoded.preferred_username || '';
     const displayName = decoded.name || email;
@@ -90,7 +109,7 @@ export const authenticate = async (
           azureAdOid: decoded.oid,
           email,
           displayName,
-          role: UserRole.VIEWER,
+          role: 'VIEWER',
           lastLoginAt: new Date(),
         },
       });
