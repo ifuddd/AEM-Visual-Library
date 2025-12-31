@@ -4,11 +4,22 @@
 
 All issues have been fixed and tested for syntax. The system now works without requiring manual `.env` file creation:
 
-1. **Enhanced seed-direct.js** - Uses default DATABASE_URL if not configured
-2. **Created setup.sh** - Automated setup for Mac/Linux
-3. **Created setup.bat** - Automated setup for Windows
-4. **Frontend ChunkLoadError** - Already fixed in previous commit
-5. **Backend Auth Bypass** - Already fixed in previous commit
+1. **Fixed npm install errors** - Removed invalid `@azure/functions-core-tools` dependency from sync-service
+2. **Enhanced seed-direct.js** - Uses default DATABASE_URL if not configured
+3. **Updated setup.sh** - Added `--legacy-peer-deps` to avoid workspace dependency issues
+4. **Updated setup.bat** - Added `--legacy-peer-deps` for Windows users
+5. **Frontend ChunkLoadError** - Already fixed in previous commit
+6. **Backend Auth Bypass** - Already fixed in previous commit
+
+### 🔧 Latest Fix (Commit df061b8):
+**The npm 404 error you encountered is now FIXED!**
+
+The issue was `@azure/functions-core-tools` in `sync-service/package.json` - this is a global CLI tool, not an npm package. Because the project uses npm workspaces, any `npm install` command would try to resolve this invalid dependency and fail.
+
+**What we did:**
+- ✅ Removed the invalid dependency from sync-service/package.json
+- ✅ Added `--legacy-peer-deps` flag to setup scripts to skip peer dependency validation
+- ✅ Created AZURE_SETUP.md with proper Azure Functions installation guide
 
 ---
 
