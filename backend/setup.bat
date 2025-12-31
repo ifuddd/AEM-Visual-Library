@@ -27,7 +27,8 @@ if not exist .env (
 REM Step 2: Install pg package
 echo.
 echo Step 2: Installing PostgreSQL client...
-npm install pg
+echo    Installing pg (ignoring workspace dependencies)...
+npm install pg --legacy-peer-deps --no-audit --no-fund
 
 REM Step 3: Run seed script
 echo.

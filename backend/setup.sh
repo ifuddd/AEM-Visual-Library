@@ -31,8 +31,8 @@ echo "📦 Step 2: Installing PostgreSQL client..."
 if npm list pg > /dev/null 2>&1; then
     echo "   ✅ pg package already installed"
 else
-    echo "   Installing pg..."
-    npm install pg
+    echo "   Installing pg (ignoring workspace dependencies)..."
+    npm install pg --legacy-peer-deps --no-audit --no-fund
     echo "   ✅ pg package installed"
 fi
 

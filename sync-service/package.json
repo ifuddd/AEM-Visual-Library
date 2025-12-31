@@ -19,7 +19,6 @@
     "gray-matter": "^4.0.3"
   },
   "devDependencies": {
-    "@azure/functions-core-tools": "^4.0.5382",
     "@types/node": "^20.10.5",
     "prisma": "^5.7.1",
     "typescript": "^5.3.3"
