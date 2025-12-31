@@ -2,14 +2,44 @@
 /**
  * Direct database seeding without Prisma dependency
  * Run with: node seed-direct.js
+ *
+ * Optional: Set DATABASE_URL environment variable or it will use default
+ * DATABASE_URL=postgresql://user:pass@host:5432/db node seed-direct.js
  */
 
-const { Client } = require('pg');
-require('dotenv').config();
+// Check if pg module is installed
+try {
+  require.resolve('pg');
+} catch (e) {
+  console.error('❌ Error: "pg" package not found.\n');
+  console.error('Please install it first:');
+  console.error('  npm install pg\n');
+  console.error('Then run this script again:');
+  console.error('  node seed-direct.js\n');
+  process.exit(1);
+}
 
-const client = new Client({
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/aem_portal',
-});
+const { Client } = require('pg');
+
+// Try to load .env file if it exists (optional)
+try {
+  require('dotenv').config();
+} catch (e) {
+  // .env file not required - we can use defaults or environment variable
+}
+
+// Default connection string for local development
+const DEFAULT_DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/aem_portal';
+
+// Use DATABASE_URL from env or default
+const connectionString = process.env.DATABASE_URL || DEFAULT_DATABASE_URL;
+
+if (!process.env.DATABASE_URL) {
+  console.log('ℹ️  Using default DATABASE_URL: postgresql://postgres:postgres@localhost:5432/aem_portal');
+  console.log('   (Set DATABASE_URL environment variable to use a different database)\n');
+}
+
+const client = new Client({ connectionString });
 
 async function seed() {
   try {
