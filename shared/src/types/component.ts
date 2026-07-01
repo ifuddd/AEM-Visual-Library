@@ -70,6 +70,7 @@ export interface Component {
   // Editing capabilities
   variants?: ComponentVariant[];
   authoringNotes?: string;
+  designSpecsNotes?: string;
   azureDevOpsWorkItem?: string;
   figmaLink?: string;
 

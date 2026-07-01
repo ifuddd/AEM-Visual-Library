@@ -16,6 +16,7 @@ export interface MockComponent {
   // New editing fields
   variants?: ComponentVariant[];
   authoringNotes?: string;
+  designSpecsNotes?: string;
   azureDevOpsWorkItem?: string;
   figmaLink?: string;
 
@@ -75,6 +76,7 @@ export const mockComponents: MockComponent[] = [
       },
     ],
     authoringNotes: '<h2>Usage Guidelines</h2><p>Use the hero banner for high-impact messaging at the top of landing pages and campaign pages. Ensure images are high quality (minimum 1920x1080) and text maintains proper contrast for accessibility.</p><h3>Best Practices</h3><ul><li>Keep headlines under 60 characters</li><li>Use action-oriented CTA text</li><li>Test overlay options for text legibility</li></ul>',
+    designSpecsNotes: '<h2>Design Specifications</h2><h3>Spacing</h3><ul><li>Padding: 80px top/bottom, 40px left/right</li><li>Content max-width: 1200px</li><li>Headline margin-bottom: 16px</li><li>Subtitle margin-bottom: 32px</li></ul><h3>Typography</h3><ul><li>Headline: 48px, font-weight: 700, line-height: 1.2</li><li>Subtitle: 20px, font-weight: 400, line-height: 1.5</li></ul><h3>Touch UI Dialog</h3><p>Dialog contains tabs for Content, Design, and Advanced settings. Image asset uses DAM path browser with preview.</p>',
     azureDevOpsWorkItem: 'https://dev.azure.com/example/project/_workitems/edit/12345',
     figmaLink: 'https://www.figma.com/file/abc123/Design-System?node-id=100-200',
 
