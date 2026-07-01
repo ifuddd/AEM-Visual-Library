@@ -3,7 +3,8 @@ import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
 import { ApiError, UserRole, AzureAdTokenPayload } from '@aem-portal/shared';
 import { config } from '../config';
-import prisma from '../db/prisma';
+// Removed Prisma import for prototype mode (no database)
+// import prisma from '../db/prisma';
 import logger from '../utils/logger';
 
 // Extend Express Request to include user
@@ -58,39 +59,19 @@ export const authenticate = async (
     const hasAzureAdConfig = config.azureAd.tenantId && config.azureAd.clientId;
 
     if (isDevelopment && !hasAzureAdConfig) {
-      logger.warn('⚠️  Development mode: Using mock authentication (Azure AD not configured)');
-      logger.warn('🚨 Configure Azure AD before deploying to production!');
+      logger.warn('⚠️  Prototype mode: Using mock authentication (no database)');
+      logger.warn('🚨 Configure Azure AD and database before deploying to production!');
 
-      // Get or create development admin user
-      let user = await prisma.user.findUnique({
-        where: { email: 'dev@localhost' },
-      });
-
-      if (!user) {
-        user = await prisma.user.create({
-          data: {
-            azureAdOid: 'dev-local-oid-00000000-0000-0000-0000-000000000000',
-            email: 'dev@localhost',
-            displayName: 'Development Admin',
-            role: UserRole.ADMIN,
-            lastLoginAt: new Date(),
-          },
-        });
-        logger.info('✅ Created development admin user: dev@localhost');
-      } else {
-        await prisma.user.update({
-          where: { email: 'dev@localhost' },
-          data: { lastLoginAt: new Date() },
-        });
-      }
+      // Use mock development admin user (no database needed for prototype)
+      const mockUser = {
+        azureAdOid: 'dev-local-oid-00000000-0000-0000-0000-000000000000',
+        email: 'dev@localhost',
+        displayName: 'Development Admin',
+        role: UserRole.ADMIN,
+      };
 
       // Attach mock user to request
-      req.user = {
-        azureAdOid: user.azureAdOid,
-        email: user.email,
-        displayName: user.displayName,
-        role: user.role as UserRole,
-      };
+      req.user = mockUser;
 
       return next();
     }
@@ -128,37 +109,19 @@ export const authenticate = async (
     const email = decoded.email || decoded.preferred_username || '';
     const displayName = decoded.name || email;
 
-    let user = await prisma.user.findUnique({
-      where: { azureAdOid: decoded.oid },
-    });
-
-    if (!user) {
-      // Create new user with default VIEWER role
-      user = await prisma.user.create({
-        data: {
-          azureAdOid: decoded.oid,
-          email,
-          displayName,
-          role: UserRole.VIEWER,
-          lastLoginAt: new Date(),
-        },
-      });
-      logger.info(`New user created: ${email}`);
-    } else {
-      // Update last login
-      await prisma.user.update({
-        where: { azureAdOid: decoded.oid },
-        data: { lastLoginAt: new Date() },
-      });
-    }
-
-    // Attach user to request
-    req.user = {
-      azureAdOid: user.azureAdOid,
-      email: user.email,
-      displayName: user.displayName,
-      role: user.role as UserRole,
+    // PROTOTYPE MODE: Using mock user (Prisma removed)
+    // In production, this would query and create users in database
+    const user = {
+      azureAdOid: decoded.oid,
+      email,
+      displayName,
+      role: UserRole.VIEWER,
     };
+
+    logger.info(`Mock user authenticated: ${email}`);
+
+    // Attach mock user to request
+    req.user = user;
 
     next();
   } catch (error) {

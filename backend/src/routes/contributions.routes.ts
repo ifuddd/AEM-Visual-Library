@@ -3,7 +3,8 @@ import Joi from 'joi';
 import { ContributionRequestType, ContributionRequestStatus, UserRole } from '@aem-portal/shared';
 import { validate } from '../middleware/validation';
 import { authenticate, authorize } from '../middleware/auth';
-import contributionService from '../services/contribution.service';
+// Using mock service for prototype (no database)
+import contributionService from '../services/contribution.service.mock';
 
 const router = Router();
 
