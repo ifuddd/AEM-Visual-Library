@@ -222,9 +222,11 @@ class ComponentServiceMock {
         screenshotAuthorUrl: component.screenshotAuthorUrl || null,
         screenshotPublishedUrl: component.screenshotPublishedUrl || null,
       },
-      lastSyncedAt: component.lastSyncedAt,
-      lastUpdatedBy: component.lastUpdatedBy,
-      lastUpdatedSource: component.lastUpdatedSource as any,
+      lastUpdate: {
+        source: component.lastUpdatedSource as any,
+        date: component.lastSyncedAt || component.updatedAt,
+        author: component.lastUpdatedBy || 'system',
+      },
       createdAt: component.createdAt,
       updatedAt: component.updatedAt,
     };
