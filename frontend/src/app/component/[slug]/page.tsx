@@ -190,9 +190,11 @@ export default function ComponentDetailPage({
       designSpecsNotes,
       variants,
       azureDevOpsWorkItem,
-      visualAssets: {
-        thumbnailUrl: finalThumbnailUrl,
-      },
+      ...(finalThumbnailUrl && {
+        visualAssets: {
+          thumbnailUrl: finalThumbnailUrl,
+        },
+      }),
     };
 
     updateMutation.mutate(updateData);

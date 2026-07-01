@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ComponentStatus } from '@aem-portal/shared';
+import { ThumbnailUpload } from './detail/ThumbnailUpload';
 
 interface ComponentCreateModalProps {
   isOpen: boolean;
@@ -27,6 +28,8 @@ export function ComponentCreateModal({ isOpen, onClose, teams }: ComponentCreate
     description: '',
     ownerTeam: '',
   });
+
+  const [thumbnail, setThumbnail] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -64,10 +67,41 @@ export function ComponentCreateModal({ isOpen, onClose, teams }: ComponentCreate
     setIsSubmitting(true);
 
     try {
+      let thumbnailUrl: string | null = null;
+
+      // Upload thumbnail if provided
+      if (thumbnail) {
+        try {
+          const uploadResponse = await fetch('/api/upload/thumbnail', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: thumbnail }),
+          });
+
+          if (uploadResponse.ok) {
+            const { url } = await uploadResponse.json();
+            thumbnailUrl = url;
+          }
+        } catch (error) {
+          console.error('Thumbnail upload failed:', error);
+          // Continue with component creation even if thumbnail upload fails
+        }
+      }
+
+      // Create component with thumbnail URL if available
+      const componentData = {
+        ...formData,
+        ...(thumbnailUrl && {
+          visualAssets: {
+            thumbnailUrl,
+          },
+        }),
+      };
+
       const response = await fetch('/api/components', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(componentData),
       });
 
       const result = await response.json();
@@ -96,6 +130,7 @@ export function ComponentCreateModal({ isOpen, onClose, teams }: ComponentCreate
       });
       setValidationErrors({ title: '', description: '', ownerTeam: '' });
       setError(null);
+      setThumbnail(null);
       onClose();
     }
   };
@@ -211,6 +246,20 @@ export function ComponentCreateModal({ isOpen, onClose, teams }: ComponentCreate
               <option value={ComponentStatus.READY}>Ready</option>
             </select>
             <p className="mt-1 text-sm text-gray-500">Components typically start as "In Review"</p>
+          </div>
+
+          {/* Thumbnail */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Component Thumbnail
+            </label>
+            <ThumbnailUpload
+              thumbnailUrl={thumbnail}
+              onThumbnailChange={setThumbnail}
+            />
+            <p className="mt-2 text-sm text-gray-500">
+              Optional. Upload a thumbnail to help identify this component in the catalog.
+            </p>
           </div>
 
           {/* Actions */}

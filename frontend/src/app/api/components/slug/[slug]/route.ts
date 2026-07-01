@@ -16,6 +16,7 @@ function mapToComponent(component: any): Component {
     // New editing fields
     variants: component.variants || [],
     authoringNotes: component.authoringNotes || null,
+    designSpecsNotes: component.designSpecsNotes || null,
     azureDevOpsWorkItem: component.azureDevOpsWorkItem || null,
     figmaLink: component.figmaLink || null,
 
@@ -94,10 +95,18 @@ export async function PATCH(
   try {
     const updateData = await request.json();
 
+    // Handle visualAssets separately to ensure proper merge
+    const visualAssets = updateData.visualAssets || {};
+    delete updateData.visualAssets;
+
     // Update the component
     mockComponents[componentIndex] = {
       ...mockComponents[componentIndex],
       ...updateData,
+      // Merge visual assets
+      thumbnailUrl: visualAssets.thumbnailUrl ?? mockComponents[componentIndex].thumbnailUrl,
+      screenshotAuthorUrl: visualAssets.screenshotAuthorUrl ?? mockComponents[componentIndex].screenshotAuthorUrl,
+      screenshotPublishedUrl: visualAssets.screenshotPublishedUrl ?? mockComponents[componentIndex].screenshotPublishedUrl,
       updatedAt: new Date(),
     };
 
