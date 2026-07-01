@@ -1,89 +1,233 @@
-import type { Component } from '@aem-portal/shared';
+'use client';
+
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Link from '@tiptap/extension-link';
+import Image from '@tiptap/extension-image';
+import Table from '@tiptap/extension-table';
+import TableRow from '@tiptap/extension-table-row';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import { useEffect } from 'react';
+import { VariantsSection } from './VariantsSection';
 
 interface AuthoringTabProps {
-  component: Component;
+  authoringNotes: string;
+  setAuthoringNotes: (value: string) => void;
+  variants: any[];
+  setVariants: (value: any[]) => void;
 }
 
-export function AuthoringTab({ component }: AuthoringTabProps) {
-  const hasDialogSchema = component.aemMetadata?.dialogSchema;
-  const hasLimitations = component.aemMetadata?.limitations && component.aemMetadata.limitations.length > 0;
+export function AuthoringTab({
+  authoringNotes,
+  setAuthoringNotes,
+  variants,
+  setVariants,
+}: AuthoringTabProps) {
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: { levels: [1, 2, 3, 4, 5, 6] },
+        bulletList: {},
+        orderedList: {},
+      }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: { class: 'text-primary-600 underline' },
+      }),
+      Image.configure({
+        HTMLAttributes: { class: 'max-w-full h-auto' },
+      }),
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableCell,
+      TableHeader,
+    ],
+    content: authoringNotes || '<p>Add authoring notes here...</p>',
+    editorProps: {
+      attributes: {
+        class:
+          'prose max-w-none p-4 min-h-[300px] border border-gray-300 rounded-md focus:outline-none focus:border-primary-500',
+      },
+    },
+    onUpdate: ({ editor }) => {
+      setAuthoringNotes(editor.getHTML());
+    },
+  });
+
+  // Update editor content when authoringNotes prop changes externally
+  useEffect(() => {
+    if (editor && authoringNotes !== editor.getHTML()) {
+      editor.commands.setContent(authoringNotes || '<p>Add authoring notes here...</p>');
+    }
+  }, [editor, authoringNotes]);
+
+  if (!editor) {
+    return <div>Loading editor...</div>;
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Dialog schema */}
-      {hasDialogSchema ? (
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Author Dialog Schema</h3>
-          <div className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
-            <pre className="text-sm">
-              {JSON.stringify(component.aemMetadata!.dialogSchema, null, 2)}
-            </pre>
-          </div>
-        </div>
-      ) : (
-        <div className="text-center py-8 text-gray-500">
-          No dialog schema available
-        </div>
-      )}
-
-      {/* Editable fields info */}
+    <div className="space-y-8">
+      {/* Rich Text Editor */}
       <div>
-        <h3 className="text-lg font-semibold mb-4">Authoring Information</h3>
-        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-          <div className="flex items-start">
-            <svg
-              className="w-5 h-5 text-blue-500 mt-0.5 mr-3"
-              fill="currentColor"
-              viewBox="0 0 20 20"
+        <h3 className="text-lg font-semibold mb-4">Authoring Notes for Content Authors</h3>
+
+        {/* Toolbar */}
+        <div className="border border-gray-300 border-b-0 rounded-t-md bg-gray-50 p-2 flex flex-wrap gap-1">
+          {/* Text Formatting */}
+          <button
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            className={`px-3 py-1 rounded text-sm font-medium ${
+              editor.isActive('bold')
+                ? 'bg-primary-600 text-white'
+                : 'bg-white border border-gray-300 hover:bg-gray-100'
+            }`}
+            title="Bold"
+          >
+            B
+          </button>
+          <button
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            className={`px-3 py-1 rounded text-sm italic ${
+              editor.isActive('italic')
+                ? 'bg-primary-600 text-white'
+                : 'bg-white border border-gray-300 hover:bg-gray-100'
+            }`}
+            title="Italic"
+          >
+            I
+          </button>
+          <button
+            onClick={() => editor.chain().focus().toggleStrike().run()}
+            className={`px-3 py-1 rounded text-sm line-through ${
+              editor.isActive('strike')
+                ? 'bg-primary-600 text-white'
+                : 'bg-white border border-gray-300 hover:bg-gray-100'
+            }`}
+            title="Strikethrough"
+          >
+            S
+          </button>
+
+          <div className="w-px h-6 bg-gray-300 mx-1" />
+
+          {/* Headings */}
+          {[1, 2, 3].map((level) => (
+            <button
+              key={level}
+              onClick={() => editor.chain().focus().toggleHeading({ level: level as any }).run()}
+              className={`px-3 py-1 rounded text-sm ${
+                editor.isActive('heading', { level })
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-white border border-gray-300 hover:bg-gray-100'
+              }`}
+              title={`Heading ${level}`}
             >
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <div className="text-sm text-blue-800">
-              <p className="font-medium mb-1">For Content Authors</p>
-              <p>
-                This component can be authored in AEM's component dialog. Editable
-                fields are defined in the dialog schema above.
-              </p>
-            </div>
-          </div>
+              H{level}
+            </button>
+          ))}
+
+          <div className="w-px h-6 bg-gray-300 mx-1" />
+
+          {/* Lists */}
+          <button
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            className={`px-3 py-1 rounded text-sm ${
+              editor.isActive('bulletList')
+                ? 'bg-primary-600 text-white'
+                : 'bg-white border border-gray-300 hover:bg-gray-100'
+            }`}
+            title="Bullet List"
+          >
+            •
+          </button>
+          <button
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            className={`px-3 py-1 rounded text-sm ${
+              editor.isActive('orderedList')
+                ? 'bg-primary-600 text-white'
+                : 'bg-white border border-gray-300 hover:bg-gray-100'
+            }`}
+            title="Numbered List"
+          >
+            1.
+          </button>
+
+          <div className="w-px h-6 bg-gray-300 mx-1" />
+
+          {/* Link */}
+          <button
+            onClick={() => {
+              const url = window.prompt('Enter URL:');
+              if (url) {
+                editor.chain().focus().setLink({ href: url }).run();
+              }
+            }}
+            className={`px-3 py-1 rounded text-sm ${
+              editor.isActive('link')
+                ? 'bg-primary-600 text-white'
+                : 'bg-white border border-gray-300 hover:bg-gray-100'
+            }`}
+            title="Add Link"
+          >
+            🔗
+          </button>
+
+          {/* Blockquote */}
+          <button
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            className={`px-3 py-1 rounded text-sm ${
+              editor.isActive('blockquote')
+                ? 'bg-primary-600 text-white'
+                : 'bg-white border border-gray-300 hover:bg-gray-100'
+            }`}
+            title="Blockquote"
+          >
+            "
+          </button>
+
+          {/* Code Block */}
+          <button
+            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            className={`px-3 py-1 rounded text-sm ${
+              editor.isActive('codeBlock')
+                ? 'bg-primary-600 text-white'
+                : 'bg-white border border-gray-300 hover:bg-gray-100'
+            }`}
+            title="Code Block"
+          >
+            {'</>'}
+          </button>
+
+          <div className="w-px h-6 bg-gray-300 mx-1" />
+
+          {/* Table */}
+          <button
+            onClick={() =>
+              editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+            }
+            className="px-3 py-1 rounded text-sm bg-white border border-gray-300 hover:bg-gray-100"
+            title="Insert Table"
+          >
+            ┃
+          </button>
+
+          {/* Clear Formatting */}
+          <button
+            onClick={() => editor.chain().focus().clearNodes().unsetAllMarks().run()}
+            className="px-3 py-1 rounded text-sm bg-white border border-gray-300 hover:bg-gray-100"
+            title="Clear Formatting"
+          >
+            ✕
+          </button>
         </div>
+
+        {/* Editor */}
+        <EditorContent editor={editor} />
       </div>
 
-      {/* Limitations */}
-      {hasLimitations && (
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Limitations & Constraints</h3>
-          <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
-            <ul className="list-disc list-inside text-sm text-yellow-800 space-y-2">
-              {component.aemMetadata!.limitations!.map((limitation, index) => (
-                <li key={index}>{limitation}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
-
-      {/* Allowed children */}
-      {component.aemMetadata?.allowedChildren &&
-        component.aemMetadata.allowedChildren.length > 0 && (
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Allowed Child Components</h3>
-            <div className="flex flex-wrap gap-2">
-              {component.aemMetadata.allowedChildren.map((child) => (
-                <span
-                  key={child}
-                  className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded border border-gray-300"
-                >
-                  {child}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+      {/* Variants Section */}
+      <VariantsSection variants={variants} setVariants={setVariants} />
     </div>
   );
 }
