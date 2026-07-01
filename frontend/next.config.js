@@ -8,14 +8,7 @@ const nextConfig = {
       // e.g., 'yourstorageaccount.blob.core.windows.net'
     ],
   },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: process.env.NEXT_PUBLIC_API_URL + '/api/:path*',
-      },
-    ];
-  },
+  // Rewrites removed - using Next.js API routes instead of external backend
 };
 
 module.exports = nextConfig;
