@@ -4,15 +4,19 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { componentApi } from '@/lib/api';
 import { ComponentCard } from '@/components/catalog/ComponentCard';
+import { ComponentListItem } from '@/components/catalog/ComponentListItem';
 import { FilterPanel } from '@/components/catalog/FilterPanel';
 import { SearchBar } from '@/components/catalog/SearchBar';
 import { Pagination } from '@/components/catalog/Pagination';
+import { ViewToggle } from '@/components/catalog/ViewToggle';
+import { useLocalStorage } from '@/lib/hooks';
 import type { ComponentFilters } from '@aem-portal/shared';
 
 export default function CatalogPage() {
   const [filters, setFilters] = useState<ComponentFilters>({});
   const [page, setPage] = useState(1);
   const pageSize = 20;
+  const [view, setView] = useLocalStorage<'grid' | 'list'>('catalog-view', 'grid');
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['components', filters, page],
@@ -52,14 +56,25 @@ export default function CatalogPage() {
           {/* Component Grid */}
           <main className="flex-1">
             {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="bg-white rounded-lg shadow-sm h-64 animate-pulse"
-                  />
-                ))}
-              </div>
+              view === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[...Array(6)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="bg-white rounded-lg shadow-sm h-64 animate-pulse"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {[...Array(6)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="bg-white rounded-lg shadow-sm h-32 animate-pulse"
+                    />
+                  ))}
+                </div>
+              )
             ) : error ? (
               <div className="bg-red-50 text-red-800 p-4 rounded-lg">
                 Failed to load components. Please try again.
@@ -67,17 +82,28 @@ export default function CatalogPage() {
             ) : data && data.data.length > 0 ? (
               <>
                 {/* Results count */}
-                <div className="mb-4 text-sm text-gray-600">
-                  Showing {(page - 1) * pageSize + 1}-
-                  {Math.min(page * pageSize, data.total)} of {data.total} components
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="text-sm text-gray-600">
+                    Showing {(page - 1) * pageSize + 1}-
+                    {Math.min(page * pageSize, data.total)} of {data.total} components
+                  </div>
+                  <ViewToggle view={view} onViewChange={setView} />
                 </div>
 
-                {/* Component grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {data.data.map((component) => (
-                    <ComponentCard key={component.id} component={component} />
-                  ))}
-                </div>
+                {/* Component grid/list */}
+                {view === 'grid' ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {data.data.map((component) => (
+                      <ComponentCard key={component.id} component={component} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    {data.data.map((component) => (
+                      <ComponentListItem key={component.id} component={component} />
+                    ))}
+                  </div>
+                )}
 
                 {/* Pagination */}
                 {data.totalPages > 1 && (
