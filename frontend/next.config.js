@@ -4,6 +4,7 @@ const nextConfig = {
   images: {
     domains: [
       'localhost',
+      'placehold.co',
       // Add your Azure Blob Storage domain
       // e.g., 'yourstorageaccount.blob.core.windows.net'
     ],

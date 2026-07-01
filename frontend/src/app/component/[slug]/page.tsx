@@ -1,6 +1,5 @@
 'use client';
 
-import { use } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { componentApi } from '@/lib/api';
 import { ComponentTabs } from '@/components/detail/ComponentTabs';
@@ -16,9 +15,9 @@ const statusColors = {
 export default function ComponentDetailPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = use(params);
+  const { slug } = params;
 
   const { data: component, isLoading, error } = useQuery({
     queryKey: ['component', slug],
