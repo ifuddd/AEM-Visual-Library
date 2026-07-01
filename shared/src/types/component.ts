@@ -2,9 +2,8 @@
  * Component status in the lifecycle
  */
 export enum ComponentStatus {
-  STABLE = 'stable',
-  EXPERIMENTAL = 'experimental',
-  DEPRECATED = 'deprecated',
+  READY = 'ready',
+  IN_REVIEW = 'in_review',
 }
 
 /**

@@ -8,9 +8,8 @@ interface ComponentCardProps {
 }
 
 const statusColors = {
-  [ComponentStatus.STABLE]: 'bg-green-100 text-green-800',
-  [ComponentStatus.EXPERIMENTAL]: 'bg-yellow-100 text-yellow-800',
-  [ComponentStatus.DEPRECATED]: 'bg-red-100 text-red-800',
+  [ComponentStatus.READY]: 'bg-emerald-100 text-emerald-800',
+  [ComponentStatus.IN_REVIEW]: 'bg-amber-100 text-amber-800',
 };
 
 export function ComponentCard({ component }: ComponentCardProps) {
@@ -58,32 +57,13 @@ export function ComponentCard({ component }: ComponentCardProps) {
               statusColors[component.status]
             }`}
           >
-            {component.status}
+            {component.status === ComponentStatus.READY ? 'Ready' : 'In Review'}
           </span>
         </div>
 
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
           {component.description}
         </p>
-
-        {/* Tags */}
-        {component.tags && component.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {component.tags.slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded"
-              >
-                {tag}
-              </span>
-            ))}
-            {component.tags.length > 3 && (
-              <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded">
-                +{component.tags.length - 3}
-              </span>
-            )}
-          </div>
-        )}
 
         {/* Owner */}
         {component.ownerTeam && (

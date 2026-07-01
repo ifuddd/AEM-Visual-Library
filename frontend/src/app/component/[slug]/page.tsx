@@ -7,9 +7,8 @@ import { ComponentStatus } from '@aem-portal/shared';
 import Link from 'next/link';
 
 const statusColors = {
-  [ComponentStatus.STABLE]: 'bg-green-100 text-green-800',
-  [ComponentStatus.EXPERIMENTAL]: 'bg-yellow-100 text-yellow-800',
-  [ComponentStatus.DEPRECATED]: 'bg-red-100 text-red-800',
+  [ComponentStatus.READY]: 'bg-emerald-100 text-emerald-800',
+  [ComponentStatus.IN_REVIEW]: 'bg-amber-100 text-amber-800',
 };
 
 export default function ComponentDetailPage({
@@ -92,7 +91,7 @@ export default function ComponentDetailPage({
                     statusColors[component.status]
                   }`}
                 >
-                  {component.status}
+                  {component.status === ComponentStatus.READY ? 'Ready' : 'In Review'}
                 </span>
               </div>
               <p className="text-gray-600 mb-4">{component.description}</p>

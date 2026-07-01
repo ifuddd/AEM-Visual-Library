@@ -14,9 +14,8 @@ datasource db {
 // ============================================
 
 enum ComponentStatus {
-  STABLE
-  EXPERIMENTAL
-  DEPRECATED
+  READY
+  IN_REVIEW
 }
 
 enum UpdateSource {
@@ -30,7 +29,7 @@ model Component {
   title       String
   description String   @db.Text
   tags        String[] @default([])
-  status      ComponentStatus @default(STABLE)
+  status      ComponentStatus @default(READY)
 
   // Ownership
   ownerEmail  String?

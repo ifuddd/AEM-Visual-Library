@@ -11,11 +11,6 @@ interface FilterPanelProps {
 }
 
 export function FilterPanel({ filters, onChange }: FilterPanelProps) {
-  const { data: tags = [] } = useQuery({
-    queryKey: ['tags'],
-    queryFn: componentApi.getTags,
-  });
-
   const { data: teams = [] } = useQuery({
     queryKey: ['teams'],
     queryFn: componentApi.getTeams,
@@ -27,14 +22,6 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
       ? current.filter((s) => s !== status)
       : [...current, status];
     onChange({ ...filters, status: updated });
-  };
-
-  const toggleTag = (tag: string) => {
-    const current = filters.tags || [];
-    const updated = current.includes(tag)
-      ? current.filter((t) => t !== tag)
-      : [...current, tag];
-    onChange({ ...filters, tags: updated });
   };
 
   const setTeam = (team: string) => {
@@ -57,33 +44,13 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
                 onChange={() => toggleStatus(status)}
                 className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
-              <span className="text-sm text-gray-700 capitalize">
-                {status.replace('_', ' ')}
+              <span className="text-sm text-gray-700">
+                {status === ComponentStatus.READY ? 'Ready' : 'In Review'}
               </span>
             </label>
           ))}
         </div>
       </div>
-
-      {/* Tags filter */}
-      {tags.length > 0 && (
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Tags</h3>
-          <div className="space-y-2 max-h-48 overflow-y-auto">
-            {tags.map((tag) => (
-              <label key={tag} className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={filters.tags?.includes(tag) || false}
-                  onChange={() => toggleTag(tag)}
-                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                />
-                <span className="text-sm text-gray-700">{tag}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Owner team filter */}
       {teams.length > 0 && (
