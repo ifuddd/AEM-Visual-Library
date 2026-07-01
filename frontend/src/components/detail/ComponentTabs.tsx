@@ -1,41 +1,57 @@
 'use client';
 
 import { useState } from 'react';
-import type { Component } from '@aem-portal/shared';
-import { PreviewTab } from './PreviewTab';
-import { DesignerTab } from './DesignerTab';
-import { AuthoringTab } from './AuthoringTab';
+import type { Component, ComponentVariant } from '@aem-portal/shared';
+import { OverviewTab } from './OverviewTab';
+import { DesignSpecsTab } from './DesignSpecsTab';
+import { UsageGuideTab } from './UsageGuideTab';
 
 interface ComponentTabsProps {
   component: Component;
+
+  // Overview tab
+  thumbnailUrl: string | null;
+  setThumbnailUrl: (value: string | null) => void;
+  variants: ComponentVariant[];
+  setVariants: (value: ComponentVariant[]) => void;
+
+  // Design specs tab
   figmaLink: string;
   setFigmaLink: (value: string) => void;
+  designSpecsNotes: string;
+  setDesignSpecsNotes: (value: string) => void;
+
+  // Usage guide tab
   authoringNotes: string;
   setAuthoringNotes: (value: string) => void;
-  variants: any[];
-  setVariants: (value: any[]) => void;
+
+  // Metadata
   azureDevOpsWorkItem: string;
   setAzureDevOpsWorkItem: (value: string) => void;
 }
 
 const tabs = [
-  { id: 'preview', label: 'Preview', icon: '👁️' },
-  { id: 'designer', label: 'Designer', icon: '🎨' },
-  { id: 'authoring', label: 'Authoring', icon: '✏️' },
+  { id: 'overview', label: 'Overview', icon: '📋' },
+  { id: 'design-specs', label: 'Design specs', icon: '🎨' },
+  { id: 'usage-guide', label: 'Usage guide', icon: '📖' },
 ];
 
 export function ComponentTabs({
   component,
-  figmaLink,
-  setFigmaLink,
-  authoringNotes,
-  setAuthoringNotes,
+  thumbnailUrl,
+  setThumbnailUrl,
   variants,
   setVariants,
+  figmaLink,
+  setFigmaLink,
+  designSpecsNotes,
+  setDesignSpecsNotes,
+  authoringNotes,
+  setAuthoringNotes,
   azureDevOpsWorkItem,
   setAzureDevOpsWorkItem,
 }: ComponentTabsProps) {
-  const [activeTab, setActiveTab] = useState('preview');
+  const [activeTab, setActiveTab] = useState('overview');
 
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -61,21 +77,27 @@ export function ComponentTabs({
 
       {/* Tab content */}
       <div className="p-6">
-        {activeTab === 'preview' && (
-          <PreviewTab figmaLink={figmaLink} />
-        )}
-        {activeTab === 'designer' && (
-          <DesignerTab
-            figmaLink={figmaLink}
-            setFigmaLink={setFigmaLink}
-          />
-        )}
-        {activeTab === 'authoring' && (
-          <AuthoringTab
-            authoringNotes={authoringNotes}
-            setAuthoringNotes={setAuthoringNotes}
+        {activeTab === 'overview' && (
+          <OverviewTab
+            description={component.description}
+            thumbnailUrl={thumbnailUrl}
+            onThumbnailChange={setThumbnailUrl}
             variants={variants}
             setVariants={setVariants}
+          />
+        )}
+        {activeTab === 'design-specs' && (
+          <DesignSpecsTab
+            figmaLink={figmaLink}
+            setFigmaLink={setFigmaLink}
+            designSpecsNotes={designSpecsNotes}
+            setDesignSpecsNotes={setDesignSpecsNotes}
+          />
+        )}
+        {activeTab === 'usage-guide' && (
+          <UsageGuideTab
+            authoringNotes={authoringNotes}
+            setAuthoringNotes={setAuthoringNotes}
           />
         )}
       </div>

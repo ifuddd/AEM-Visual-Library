@@ -6,6 +6,7 @@ import { componentApi } from '@/lib/api';
 import { ComponentTabs } from '@/components/detail/ComponentTabs';
 import { ComponentStatus } from '@aem-portal/shared';
 import type { Component } from '@aem-portal/shared';
+import { isValidFigmaUrl } from '@/lib/figmaUtils';
 import Link from 'next/link';
 
 const statusColors = {
@@ -32,11 +33,17 @@ export default function ComponentDetailPage({
   const [status, setStatus] = useState<ComponentStatus>(ComponentStatus.READY);
   const [figmaLink, setFigmaLink] = useState('');
   const [authoringNotes, setAuthoringNotes] = useState('');
+  const [designSpecsNotes, setDesignSpecsNotes] = useState('');
   const [variants, setVariants] = useState<any[]>([]);
   const [azureDevOpsWorkItem, setAzureDevOpsWorkItem] = useState('');
 
+  // Thumbnail state
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [thumbnailBase64, setThumbnailBase64] = useState<string | null>(null);
+
   // Save state
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Initialize editable fields when component loads
   useEffect(() => {
@@ -46,10 +53,54 @@ export default function ComponentDetailPage({
       setStatus(component.status);
       setFigmaLink(component.figmaLink || '');
       setAuthoringNotes(component.authoringNotes || '');
+      setDesignSpecsNotes(component.designSpecsNotes || '');
       setVariants(component.variants || []);
       setAzureDevOpsWorkItem(component.azureDevOpsWorkItem || '');
+      setThumbnailUrl(component.visualAssets?.thumbnailUrl || null);
     }
   }, [component]);
+
+  // Track unsaved changes
+  useEffect(() => {
+    if (!component) return;
+
+    const hasChanges =
+      title !== component.title ||
+      description !== component.description ||
+      status !== component.status ||
+      figmaLink !== (component.figmaLink || '') ||
+      authoringNotes !== (component.authoringNotes || '') ||
+      designSpecsNotes !== (component.designSpecsNotes || '') ||
+      thumbnailBase64 !== null ||
+      JSON.stringify(variants) !== JSON.stringify(component.variants || []) ||
+      azureDevOpsWorkItem !== (component.azureDevOpsWorkItem || '');
+
+    setHasUnsavedChanges(hasChanges);
+  }, [
+    title,
+    description,
+    status,
+    figmaLink,
+    authoringNotes,
+    designSpecsNotes,
+    thumbnailBase64,
+    variants,
+    azureDevOpsWorkItem,
+    component,
+  ]);
+
+  // Beforeunload warning for unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   // Update mutation
   const updateMutation = useMutation({
@@ -73,8 +124,62 @@ export default function ComponentDetailPage({
     },
   });
 
+  // Validation before save
+  const validateBeforeSave = () => {
+    const errors: string[] = [];
+
+    if (!title || title.trim().length < 3) {
+      errors.push('Title must be at least 3 characters');
+    }
+
+    if (!description || description.trim().length < 10) {
+      errors.push('Description must be at least 10 characters');
+    }
+
+    if (figmaLink && !isValidFigmaUrl(figmaLink)) {
+      errors.push('Invalid Figma URL');
+    }
+
+    for (const variant of variants) {
+      if (!variant.name || variant.name.trim().length === 0) {
+        errors.push('All variants must have a name');
+      }
+    }
+
+    if (errors.length > 0) {
+      alert(errors.join('\n'));
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSave = async () => {
+    // Validate first
+    if (!validateBeforeSave()) return;
+
     setSaveStatus('saving');
+
+    let finalThumbnailUrl = thumbnailUrl;
+
+    // Upload thumbnail if there's a new one (base64)
+    if (thumbnailBase64) {
+      try {
+        const uploadResponse = await fetch('/api/upload/thumbnail', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: thumbnailBase64 }),
+        });
+
+        if (uploadResponse.ok) {
+          const { url } = await uploadResponse.json();
+          finalThumbnailUrl = url;
+        }
+      } catch (error) {
+        console.error('Thumbnail upload failed:', error);
+        // Continue with save even if upload fails
+      }
+    }
 
     const updateData = {
       title,
@@ -82,11 +187,17 @@ export default function ComponentDetailPage({
       status,
       figmaLink,
       authoringNotes,
+      designSpecsNotes,
       variants,
       azureDevOpsWorkItem,
+      visualAssets: {
+        thumbnailUrl: finalThumbnailUrl,
+      },
     };
 
     updateMutation.mutate(updateData);
+    setThumbnailBase64(null);
+    setHasUnsavedChanges(false);
   };
 
   if (isLoading) {
@@ -183,14 +294,18 @@ export default function ComponentDetailPage({
               {/* Save Button */}
               <button
                 onClick={handleSave}
-                disabled={saveStatus === 'saving'}
+                disabled={saveStatus === 'saving' || !hasUnsavedChanges}
                 className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                  saveStatus === 'saved'
+                  hasUnsavedChanges
+                    ? saveStatus === 'saving'
+                      ? 'bg-primary-600 text-white opacity-75'
+                      : 'bg-primary-600 text-white hover:bg-primary-700'
+                    : saveStatus === 'saved'
                     ? 'bg-green-600 text-white'
                     : saveStatus === 'error'
                     ? 'bg-red-600 text-white'
-                    : 'bg-primary-600 text-white hover:bg-primary-700'
-                } disabled:opacity-50`}
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
               >
                 {saveStatus === 'saving' && 'Saving...'}
                 {saveStatus === 'saved' && (
@@ -209,7 +324,7 @@ export default function ComponentDetailPage({
                     Error
                   </span>
                 )}
-                {saveStatus === 'idle' && 'Save Changes'}
+                {saveStatus === 'idle' && (hasUnsavedChanges ? 'Save Changes' : 'No Changes')}
               </button>
             </div>
           </div>
@@ -302,12 +417,23 @@ export default function ComponentDetailPage({
       <main className="container mx-auto px-4 py-8">
         <ComponentTabs
           component={component}
-          figmaLink={figmaLink}
-          setFigmaLink={setFigmaLink}
-          authoringNotes={authoringNotes}
-          setAuthoringNotes={setAuthoringNotes}
+          thumbnailUrl={thumbnailBase64 || thumbnailUrl}
+          setThumbnailUrl={(url) => {
+            if (url?.startsWith('data:')) {
+              setThumbnailBase64(url);
+            } else {
+              setThumbnailUrl(url);
+              setThumbnailBase64(null);
+            }
+          }}
           variants={variants}
           setVariants={setVariants}
+          figmaLink={figmaLink}
+          setFigmaLink={setFigmaLink}
+          designSpecsNotes={designSpecsNotes}
+          setDesignSpecsNotes={setDesignSpecsNotes}
+          authoringNotes={authoringNotes}
+          setAuthoringNotes={setAuthoringNotes}
           azureDevOpsWorkItem={azureDevOpsWorkItem}
           setAzureDevOpsWorkItem={setAzureDevOpsWorkItem}
         />
