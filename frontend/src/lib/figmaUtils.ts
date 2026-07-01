@@ -2,9 +2,9 @@
  * Converts a Figma design/file URL to a proper embed URL
  * Handles both old (/file/) and new (/design/) Figma URL formats
  */
-export function getFigmaEmbedUrl(figmaUrl: string): string | null {
+export function getFigmaEmbedUrl(figmaUrl: string): string | undefined {
   if (!figmaUrl || !figmaUrl.includes('figma.com')) {
-    return null;
+    return undefined;
   }
 
   try {
@@ -22,7 +22,7 @@ export function getFigmaEmbedUrl(figmaUrl: string): string | null {
 
     if (!pathMatch) {
       console.warn('Invalid Figma URL format:', figmaUrl);
-      return null;
+      return undefined;
     }
 
     const fileId = pathMatch[2];
@@ -39,7 +39,7 @@ export function getFigmaEmbedUrl(figmaUrl: string): string | null {
     return embedUrl.toString();
   } catch (error) {
     console.error('Error parsing Figma URL:', error);
-    return null;
+    return undefined;
   }
 }
 

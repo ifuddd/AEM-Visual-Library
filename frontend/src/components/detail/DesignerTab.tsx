@@ -39,7 +39,7 @@ export function DesignerTab({ figmaLink, setFigmaLink }: DesignerTabProps) {
   };
 
   // Convert Figma URL to embed URL using utility function
-  const embedUrl = figmaLink ? getFigmaEmbedUrl(figmaLink) : null;
+  const embedUrl = figmaLink ? getFigmaEmbedUrl(figmaLink) : undefined;
 
   return (
     <div className="space-y-6">
@@ -97,7 +97,7 @@ export function DesignerTab({ figmaLink, setFigmaLink }: DesignerTabProps) {
       </div>
 
       {/* Figma Preview */}
-      {figmaLink && !validationError && (
+      {embedUrl && !validationError && (
         <div>
           <h3 className="text-lg font-semibold mb-4">Figma Preview</h3>
           <div className="border border-gray-200 rounded-lg overflow-hidden" style={{ height: '600px' }}>
