@@ -44,6 +44,17 @@ export interface LastUpdate {
 }
 
 /**
+ * Component variant
+ */
+export interface ComponentVariant {
+  id: string;
+  name: string;
+  description?: string;
+  imageUrl?: string;
+  order: number;
+}
+
+/**
  * Main Component entity
  */
 export interface Component {
@@ -55,10 +66,19 @@ export interface Component {
   status: ComponentStatus;
   ownerEmail?: string;
   ownerTeam?: string;
+
+  // Editing capabilities
+  variants?: ComponentVariant[];
+  authoringNotes?: string;
+  azureDevOpsWorkItem?: string;
+  figmaLink?: string;
+
+  // Legacy fields (deprecated - will be removed)
   repoLink?: string;
   azureWikiPath?: string;
   azureWikiUrl?: string;
   figmaLinks?: string[];
+
   aemMetadata?: AEMMetadata;
   visualAssets?: VisualAssets;
   lastUpdate?: LastUpdate;

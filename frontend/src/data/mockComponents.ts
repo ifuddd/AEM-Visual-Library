@@ -1,7 +1,7 @@
 // Mock component data for prototype (no database required)
 // This file contains 18 hardcoded AEM components
 
-import { ComponentStatus } from '@aem-portal/shared';
+import { ComponentStatus, ComponentVariant } from '@aem-portal/shared';
 
 export interface MockComponent {
   id: string;
@@ -12,10 +12,19 @@ export interface MockComponent {
   status: ComponentStatus;
   ownerEmail: string;
   ownerTeam: string;
+
+  // New editing fields
+  variants?: ComponentVariant[];
+  authoringNotes?: string;
+  azureDevOpsWorkItem?: string;
+  figmaLink?: string;
+
+  // Legacy fields (deprecated)
   repoLink?: string;
   azureWikiPath?: string;
   azureWikiUrl?: string;
   figmaLinks: string[];
+
   aemComponentPath?: string;
   aemDialogSchema?: any;
   aemAllowedChildren?: string[];
@@ -41,6 +50,35 @@ export const mockComponents: MockComponent[] = [
     status: ComponentStatus.READY,
     ownerEmail: 'marketing-platform@example.com',
     ownerTeam: 'Marketing Platform',
+
+    // New editing fields
+    variants: [
+      {
+        id: 'v1',
+        name: 'Full Width',
+        description: 'Banner spans entire viewport width with edge-to-edge background',
+        imageUrl: 'https://placehold.co/800x400/2563eb/ffffff?text=Full+Width+Variant',
+        order: 0,
+      },
+      {
+        id: 'v2',
+        name: 'Contained',
+        description: 'Banner constrained to max-width container with padding',
+        imageUrl: 'https://placehold.co/800x400/1e40af/ffffff?text=Contained+Variant',
+        order: 1,
+      },
+      {
+        id: 'v3',
+        name: 'Minimal',
+        description: 'Minimalist banner with reduced content and centered alignment',
+        order: 2,
+      },
+    ],
+    authoringNotes: '<h2>Usage Guidelines</h2><p>Use the hero banner for high-impact messaging at the top of landing pages and campaign pages. Ensure images are high quality (minimum 1920x1080) and text maintains proper contrast for accessibility.</p><h3>Best Practices</h3><ul><li>Keep headlines under 60 characters</li><li>Use action-oriented CTA text</li><li>Test overlay options for text legibility</li></ul>',
+    azureDevOpsWorkItem: 'https://dev.azure.com/example/project/_workitems/edit/12345',
+    figmaLink: 'https://www.figma.com/file/abc123/Design-System?node-id=100-200',
+
+    // Legacy fields
     repoLink: 'https://github.com/example/aem-components/tree/main/hero-banner',
     azureWikiPath: '/Components/Hero-Banner',
     azureWikiUrl: 'https://dev.azure.com/example/_wiki/wikis/Components/Hero-Banner',
@@ -48,6 +86,7 @@ export const mockComponents: MockComponent[] = [
       'https://www.figma.com/file/abc123/Design-System?node-id=100-200',
       'https://www.figma.com/file/abc123/Design-System?node-id=100-250',
     ],
+
     aemComponentPath: '/apps/myproject/components/hero-banner',
     aemDialogSchema: {
       title: { type: 'textfield', required: true },
@@ -88,9 +127,38 @@ export const mockComponents: MockComponent[] = [
     status: ComponentStatus.READY,
     ownerEmail: 'design-system@example.com',
     ownerTeam: 'Design System',
+
+    // New editing fields
+    variants: [
+      {
+        id: 'v1',
+        name: 'Primary',
+        description: 'High emphasis button for main actions',
+        imageUrl: 'https://placehold.co/400x200/059669/ffffff?text=Primary+Button',
+        order: 0,
+      },
+      {
+        id: 'v2',
+        name: 'Secondary',
+        description: 'Medium emphasis button for secondary actions',
+        imageUrl: 'https://placehold.co/400x200/047857/ffffff?text=Secondary+Button',
+        order: 1,
+      },
+      {
+        id: 'v3',
+        name: 'Ghost',
+        description: 'Low emphasis transparent button',
+        order: 2,
+      },
+    ],
+    authoringNotes: '<h2>Button Usage</h2><p>CTA buttons should be used for important user actions like form submissions, downloads, or navigation to key pages.</p><h3>Accessibility</h3><ul><li>Minimum touch target: 44x44px</li><li>Ensure 3:1 contrast ratio for text</li><li>Use descriptive button text (avoid "Click Here")</li></ul>',
+    figmaLink: 'https://www.figma.com/file/abc123/Design-System?node-id=200-300',
+
+    // Legacy fields
     repoLink: 'https://github.com/example/aem-components/tree/main/cta-button',
     azureWikiPath: '/Components/CTA-Button',
     figmaLinks: ['https://www.figma.com/file/abc123/Design-System?node-id=200-300'],
+
     aemComponentPath: '/apps/myproject/components/cta-button',
     thumbnailUrl: 'https://placehold.co/400x300/059669/ffffff?text=CTA+Button',
     screenshotAuthorUrl: 'https://placehold.co/1200x800/047857/ffffff?text=Button+Author',

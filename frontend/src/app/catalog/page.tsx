@@ -9,6 +9,7 @@ import { FilterPanel } from '@/components/catalog/FilterPanel';
 import { SearchBar } from '@/components/catalog/SearchBar';
 import { Pagination } from '@/components/catalog/Pagination';
 import { ViewToggle } from '@/components/catalog/ViewToggle';
+import { ComponentCreateModal } from '@/components/ComponentCreateModal';
 import { useLocalStorage } from '@/lib/hooks';
 import type { ComponentFilters } from '@aem-portal/shared';
 
@@ -17,10 +18,16 @@ export default function CatalogPage() {
   const [page, setPage] = useState(1);
   const pageSize = 20;
   const [view, setView] = useLocalStorage<'grid' | 'list'>('catalog-view', 'grid');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['components', filters, page],
     queryFn: () => componentApi.getAll(filters, page, pageSize),
+  });
+
+  const { data: teams = [] } = useQuery({
+    queryKey: ['teams'],
+    queryFn: componentApi.getTeams,
   });
 
   const handleFilterChange = (newFilters: ComponentFilters) => {
@@ -33,8 +40,21 @@ export default function CatalogPage() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">Component Catalog</h1>
-          <p className="text-gray-600">Browse and discover AEM components</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Component Catalog</h1>
+              <p className="text-gray-600">Browse and discover AEM components</p>
+            </div>
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              New Component
+            </button>
+          </div>
         </div>
       </header>
 
@@ -130,6 +150,13 @@ export default function CatalogPage() {
           </main>
         </div>
       </div>
+
+      {/* Create Component Modal */}
+      <ComponentCreateModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        teams={teams}
+      />
     </div>
   );
 }

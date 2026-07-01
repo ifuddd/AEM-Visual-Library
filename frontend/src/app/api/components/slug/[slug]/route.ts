@@ -12,10 +12,19 @@ function mapToComponent(component: any): Component {
     status: component.status as any,
     ownerEmail: component.ownerEmail,
     ownerTeam: component.ownerTeam,
+
+    // New editing fields
+    variants: component.variants || [],
+    authoringNotes: component.authoringNotes || null,
+    azureDevOpsWorkItem: component.azureDevOpsWorkItem || null,
+    figmaLink: component.figmaLink || null,
+
+    // Legacy fields
     repoLink: component.repoLink || null,
     azureWikiPath: component.azureWikiPath || null,
     azureWikiUrl: component.azureWikiUrl || null,
     figmaLinks: component.figmaLinks,
+
     aemMetadata: {
       componentPath: component.aemComponentPath || null,
       dialogSchema: component.aemDialogSchema || null,
@@ -61,4 +70,51 @@ export async function GET(
     success: true,
     data: mapToComponent(component),
   });
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { slug: string } }
+) {
+  const componentIndex = mockComponents.findIndex((c) => c.slug === params.slug);
+
+  if (componentIndex === -1) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: 'Component not found',
+          code: 'NOT_FOUND',
+        },
+      },
+      { status: 404 }
+    );
+  }
+
+  try {
+    const updateData = await request.json();
+
+    // Update the component
+    mockComponents[componentIndex] = {
+      ...mockComponents[componentIndex],
+      ...updateData,
+      updatedAt: new Date(),
+    };
+
+    return NextResponse.json({
+      success: true,
+      data: mapToComponent(mockComponents[componentIndex]),
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: 'Failed to update component',
+          code: 'UPDATE_FAILED',
+        },
+      },
+      { status: 500 }
+    );
+  }
 }

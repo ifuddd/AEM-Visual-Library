@@ -12,10 +12,19 @@ function mapToComponent(component: any): Component {
     status: component.status as any,
     ownerEmail: component.ownerEmail,
     ownerTeam: component.ownerTeam,
+
+    // New editing fields
+    variants: component.variants || [],
+    authoringNotes: component.authoringNotes || null,
+    azureDevOpsWorkItem: component.azureDevOpsWorkItem || null,
+    figmaLink: component.figmaLink || null,
+
+    // Legacy fields
     repoLink: component.repoLink || null,
     azureWikiPath: component.azureWikiPath || null,
     azureWikiUrl: component.azureWikiUrl || null,
     figmaLinks: component.figmaLinks,
+
     aemMetadata: {
       componentPath: component.aemComponentPath || null,
       dialogSchema: component.aemDialogSchema || null,
@@ -93,4 +102,74 @@ export async function GET(request: NextRequest) {
       totalPages,
     },
   });
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const data = await request.json();
+
+    // Generate slug from title
+    const slug = data.title
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
+
+    // Check if slug already exists
+    if (mockComponents.find((c) => c.slug === slug)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: 'Component with this title already exists',
+            code: 'DUPLICATE_SLUG',
+          },
+        },
+        { status: 409 }
+      );
+    }
+
+    const newComponent = {
+      id: String(mockComponents.length + 1),
+      slug,
+      title: data.title,
+      description: data.description,
+      tags: data.tags || [],
+      status: data.status || 'in_review',
+      ownerEmail: data.ownerEmail || '',
+      ownerTeam: data.ownerTeam,
+
+      // New editing fields
+      variants: data.variants || [],
+      authoringNotes: data.authoringNotes || '',
+      azureDevOpsWorkItem: data.azureDevOpsWorkItem || '',
+      figmaLink: data.figmaLink || '',
+
+      // Legacy fields
+      figmaLinks: [],
+
+      lastSyncedAt: new Date(),
+      lastUpdatedBy: 'system',
+      lastUpdatedSource: 'MANUAL' as const,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    mockComponents.push(newComponent);
+
+    return NextResponse.json({
+      success: true,
+      data: mapToComponent(newComponent),
+    }, { status: 201 });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message: 'Failed to create component',
+          code: 'CREATE_FAILED',
+        },
+      },
+      { status: 500 }
+    );
+  }
 }

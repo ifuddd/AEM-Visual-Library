@@ -35,7 +35,13 @@ model Component {
   ownerEmail  String?
   ownerTeam   String?
 
-  // Links
+  // Editing capabilities (new fields)
+  variants             Json?      // Array of ComponentVariant objects
+  authoringNotes       String?    @db.Text  // Rich text HTML from TipTap
+  azureDevOpsWorkItem  String?    // Work item URL/ID
+  figmaLink            String?    // Single Figma link for the component
+
+  // Links (legacy - deprecated)
   repoLink     String?
   azureWikiPath String?
   azureWikiUrl  String?
