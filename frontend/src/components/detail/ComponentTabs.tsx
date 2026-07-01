@@ -5,22 +5,36 @@ import type { Component } from '@aem-portal/shared';
 import { PreviewTab } from './PreviewTab';
 import { DesignerTab } from './DesignerTab';
 import { AuthoringTab } from './AuthoringTab';
-import { ImplementationTab } from './ImplementationTab';
-import { HistoryTab } from './HistoryTab';
 
 interface ComponentTabsProps {
   component: Component;
+  figmaLink: string;
+  setFigmaLink: (value: string) => void;
+  authoringNotes: string;
+  setAuthoringNotes: (value: string) => void;
+  variants: any[];
+  setVariants: (value: any[]) => void;
+  azureDevOpsWorkItem: string;
+  setAzureDevOpsWorkItem: (value: string) => void;
 }
 
 const tabs = [
   { id: 'preview', label: 'Preview', icon: '👁️' },
   { id: 'designer', label: 'Designer', icon: '🎨' },
   { id: 'authoring', label: 'Authoring', icon: '✏️' },
-  { id: 'implementation', label: 'Implementation', icon: '💻' },
-  { id: 'history', label: 'History', icon: '📜' },
 ];
 
-export function ComponentTabs({ component }: ComponentTabsProps) {
+export function ComponentTabs({
+  component,
+  figmaLink,
+  setFigmaLink,
+  authoringNotes,
+  setAuthoringNotes,
+  variants,
+  setVariants,
+  azureDevOpsWorkItem,
+  setAzureDevOpsWorkItem,
+}: ComponentTabsProps) {
   const [activeTab, setActiveTab] = useState('preview');
 
   return (
@@ -47,11 +61,23 @@ export function ComponentTabs({ component }: ComponentTabsProps) {
 
       {/* Tab content */}
       <div className="p-6">
-        {activeTab === 'preview' && <PreviewTab component={component} />}
-        {activeTab === 'designer' && <DesignerTab component={component} />}
-        {activeTab === 'authoring' && <AuthoringTab component={component} />}
-        {activeTab === 'implementation' && <ImplementationTab component={component} />}
-        {activeTab === 'history' && <HistoryTab component={component} />}
+        {activeTab === 'preview' && (
+          <PreviewTab figmaLink={figmaLink} />
+        )}
+        {activeTab === 'designer' && (
+          <DesignerTab
+            figmaLink={figmaLink}
+            setFigmaLink={setFigmaLink}
+          />
+        )}
+        {activeTab === 'authoring' && (
+          <AuthoringTab
+            authoringNotes={authoringNotes}
+            setAuthoringNotes={setAuthoringNotes}
+            variants={variants}
+            setVariants={setVariants}
+          />
+        )}
       </div>
     </div>
   );
