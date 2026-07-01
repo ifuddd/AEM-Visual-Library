@@ -3,12 +3,18 @@ const nextConfig = {
   reactStrictMode: true,
   output: 'standalone', // Enable standalone output for Docker
   images: {
-    domains: [
-      'localhost',
-      'placehold.co',
-      // Add your Azure Blob Storage domain
-      // e.g., 'yourstorageaccount.blob.core.windows.net'
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
     ],
+    // Disable optimization for placehold.co to avoid 400 errors
+    unoptimized: false,
   },
   // Rewrites removed - using Next.js API routes instead of external backend
 };

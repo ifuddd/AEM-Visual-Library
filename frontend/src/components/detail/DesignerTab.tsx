@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { getFigmaEmbedUrl, isValidFigmaUrl } from '@/lib/figmaUtils';
 
 interface DesignerTabProps {
   figmaLink: string;
@@ -15,8 +16,8 @@ export function DesignerTab({ figmaLink, setFigmaLink }: DesignerTabProps) {
       return true;
     }
 
-    if (!url.includes('figma.com')) {
-      setValidationError('Please enter a valid Figma URL');
+    if (!isValidFigmaUrl(url)) {
+      setValidationError('Please enter a valid Figma URL (must contain figma.com/file/ or figma.com/design/)');
       return false;
     }
 
@@ -37,11 +38,8 @@ export function DesignerTab({ figmaLink, setFigmaLink }: DesignerTabProps) {
     setValidationError('');
   };
 
-  // Convert Figma URL to embed URL
-  const embedUrl = figmaLink && figmaLink.includes('figma.com')
-    ? figmaLink.replace('figma.com/file/', 'figma.com/embed?embed_host=share&url=') ||
-      `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(figmaLink)}`
-    : '';
+  // Convert Figma URL to embed URL using utility function
+  const embedUrl = figmaLink ? getFigmaEmbedUrl(figmaLink) : null;
 
   return (
     <div className="space-y-6">
