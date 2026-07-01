@@ -1,46 +1,45 @@
 # Frontend Dockerfile for Next.js application
 FROM node:18-alpine AS base
-
-# Install dependencies only when needed
-FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy package files
+# Install dependencies
+FROM base AS deps
 COPY package.json package-lock.json ./
 COPY shared/package.json ./shared/
 COPY frontend/package.json ./frontend/
-
-# Install dependencies
 RUN npm ci --legacy-peer-deps
 
-# Rebuild the source code only when needed
+# Build application
 FROM base AS builder
-WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build shared package first
+# Build shared package
 WORKDIR /app/shared
 RUN npm run build
 
 # Build frontend
 WORKDIR /app/frontend
+ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build
 
-# Production image, copy all the files and run next
+# Production image
 FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-# Copy built application
+# Copy necessary files
+COPY --from=builder /app/frontend/next.config.js ./
+COPY --from=builder /app/frontend/package.json ./
 COPY --from=builder /app/frontend/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/frontend/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/frontend/.next/static ./frontend/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/frontend/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
 
 USER nextjs
 
@@ -49,4 +48,4 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-CMD ["node", "frontend/server.js"]
+CMD ["npm", "start"]

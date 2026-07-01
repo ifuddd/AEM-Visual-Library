@@ -1,22 +1,17 @@
 # Backend Dockerfile for Express API
 FROM node:18-alpine AS base
-
-# Install dependencies only when needed
-FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy package files
+# Install dependencies
+FROM base AS deps
 COPY package.json package-lock.json ./
 COPY shared/package.json ./shared/
 COPY backend/package.json ./backend/
-
-# Install dependencies
 RUN npm ci --legacy-peer-deps
 
-# Build stage
+# Build application
 FROM base AS builder
-WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -34,14 +29,15 @@ WORKDIR /app
 
 ENV NODE_ENV production
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 expressjs
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 expressjs
 
 # Copy built application
-COPY --from=builder --chown=expressjs:nodejs /app/backend/dist ./backend/dist
-COPY --from=builder --chown=expressjs:nodejs /app/backend/package.json ./backend/
-COPY --from=builder --chown=expressjs:nodejs /app/shared/dist ./shared/dist
-COPY --from=builder --chown=expressjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder /app/backend/dist ./backend/dist
+COPY --from=builder /app/backend/package.json ./backend/
+COPY --from=builder /app/shared/dist ./shared/dist
+COPY --from=builder /app/shared/package.json ./shared/
+COPY --from=builder /app/node_modules ./node_modules
 
 USER expressjs
 
@@ -51,4 +47,4 @@ ENV PORT 4000
 
 WORKDIR /app/backend
 
-CMD ["node", "dist/index.js"]
+CMD ["npm", "start"]
