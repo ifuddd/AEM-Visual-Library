@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-07-01  
 **Branch:** `claude/plan-aem-library-01NwUfar18HqXNwKgK6wfgmD`  
-**Latest Commit:** `eee42be` - Next.js API Routes Complete  
+**Latest Commit:** `01bcb3a` - List/Grid View Toggle Complete  
 **Status:** ✅ **READY FOR PRODUCTION DEPLOYMENT**
 
 ---
@@ -127,7 +127,47 @@ frontend/src/app/api/components/
 - ✅ All images render
 - ✅ Navigation works
 
-### 4. Updated Documentation
+### 4. Implemented List/Grid View Toggle (New Feature)
+
+**Added User Preference for Catalog Layout:**
+
+**New Components Created:**
+1. **`frontend/src/lib/hooks.ts`** - Custom `useLocalStorage` hook
+   - SSR-safe localStorage with TypeScript generics
+   - Handles `typeof window` checks for Next.js compatibility
+   - Reusable for future preference storage needs
+
+2. **`frontend/src/components/catalog/ViewToggle.tsx`** - Toggle button component
+   - Two-button control with grid/list icons
+   - Active state: white background with primary color and shadow
+   - Accessible with aria-labels
+   - Smooth transition effects
+
+3. **`frontend/src/components/catalog/ComponentListItem.tsx`** - Horizontal list layout
+   - Alternative to vertical ComponentCard
+   - Responsive flex layout (vertical on mobile, horizontal on tablet/desktop)
+   - Shows all tags (vs first 3 in grid view)
+   - 3-line description for more context
+   - Same hover effects: shadow-md and image scale-105
+
+**Modified Components:**
+- **`frontend/src/app/catalog/page.tsx`** - Integrated view toggle
+  - Added view state with `useLocalStorage<'grid' | 'list'>('catalog-view', 'grid')`
+  - ViewToggle positioned next to results count
+  - Conditional rendering for grid vs list layouts
+  - Loading skeletons adapt to selected view
+
+**Features:**
+- ✅ Toggle button switches between grid and list views instantly
+- ✅ Grid view: 3-column layout (unchanged from original)
+- ✅ List view: Horizontal cards with more details
+- ✅ View preference persists across page refreshes
+- ✅ Stored in localStorage as `'catalog-view'`
+- ✅ Responsive design for mobile, tablet, desktop
+- ✅ Works with search, filters, and pagination
+- ✅ Smooth hover effects in both views
+
+### 5. Updated Documentation
 
 **Files Updated:**
 - `DEPLOYMENT_CHECKLIST.md` - Complete deployment guide
@@ -157,12 +197,17 @@ AEM-Visual-Library/
 │   │   │   │       ├── slug/[slug]/route.ts
 │   │   │   │       ├── tags/route.ts
 │   │   │   │       └── teams/route.ts
-│   │   │   ├── catalog/       # Component list page
+│   │   │   ├── catalog/       # Component list page (✅ VIEW TOGGLE ADDED)
 │   │   │   └── component/[slug]/page.tsx (✅ FIXED)
 │   │   ├── components/
+│   │   │   ├── catalog/
+│   │   │   │   ├── ComponentCard.tsx
+│   │   │   │   ├── ComponentListItem.tsx  # 🆕 LIST VIEW
+│   │   │   │   └── ViewToggle.tsx  # 🆕 TOGGLE BUTTON
 │   │   │   └── detail/        # 5 tab components
 │   │   ├── lib/
 │   │   │   ├── api.ts
+│   │   │   ├── hooks.ts  # 🆕 useLocalStorage HOOK
 │   │   │   └── mockComponents.ts  # 🆕 ADDED
 │   │   └── data/mockComponents.ts
 │   ├── next.config.js (✅ FIXED)
