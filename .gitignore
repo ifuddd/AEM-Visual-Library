@@ -50,4 +50,6 @@ sync-service/.azurite/
 # Misc
 *.tsbuildinfo
 .turbo/
-/public/uploads
+
+# Uploaded files
+frontend/public/uploads/
