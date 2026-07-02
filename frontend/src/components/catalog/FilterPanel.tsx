@@ -11,21 +11,12 @@ interface FilterPanelProps {
 }
 
 export function FilterPanel({ filters, onChange }: FilterPanelProps) {
-  const { data: teams = [] } = useQuery({
-    queryKey: ['teams'],
-    queryFn: componentApi.getTeams,
-  });
-
   const toggleStatus = (status: ComponentStatus) => {
     const current = filters.status || [];
     const updated = current.includes(status)
       ? current.filter((s) => s !== status)
       : [...current, status];
     onChange({ ...filters, status: updated });
-  };
-
-  const setTeam = (team: string) => {
-    onChange({ ...filters, ownerTeam: team === filters.ownerTeam ? undefined : team });
   };
 
   return (
@@ -51,25 +42,6 @@ export function FilterPanel({ filters, onChange }: FilterPanelProps) {
           ))}
         </div>
       </div>
-
-      {/* Owner team filter */}
-      {teams.length > 0 && (
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Owner Team</h3>
-          <select
-            value={filters.ownerTeam || ''}
-            onChange={(e) => setTeam(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary-500 focus:border-primary-500"
-          >
-            <option value="">All teams</option>
-            {teams.map((team) => (
-              <option key={team} value={team}>
-                {team}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
 
       {/* Clear filters */}
       <button
