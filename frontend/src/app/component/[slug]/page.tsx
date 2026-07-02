@@ -337,6 +337,27 @@ export default function ComponentDetailPage({
 
           {/* Metadata */}
           <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+            {component.aemMetadata?.componentPath && (
+              <div className="flex items-center gap-1">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                  />
+                </svg>
+                <span className="text-gray-500">AEM:</span>
+                <code className="text-xs bg-gray-100 px-2 py-0.5 rounded font-mono">
+                  {component.aemMetadata.componentPath.split('/').pop()}
+                </code>
+              </div>
+            )}
             {component.updatedAt && (
               <div className="flex items-center gap-1">
                 <svg

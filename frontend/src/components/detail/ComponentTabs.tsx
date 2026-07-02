@@ -101,6 +101,8 @@ export function ComponentTabs({
           <UsageGuideTab
             authoringNotes={authoringNotes}
             setAuthoringNotes={setAuthoringNotes}
+            variants={variants}
+            aemMetadata={component.aemMetadata}
           />
         )}
       </div>
