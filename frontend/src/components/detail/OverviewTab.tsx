@@ -4,6 +4,7 @@ import { CollapsibleSection } from './CollapsibleSection';
 import { ThumbnailUpload } from './ThumbnailUpload';
 import { VariantsSection } from './VariantsSection';
 import { EmptyState } from './EmptyState';
+import { RectangleGroupIcon } from '@heroicons/react/24/outline';
 
 interface OverviewTabProps {
   description: string;
@@ -11,6 +12,8 @@ interface OverviewTabProps {
   onThumbnailChange: (url: string | null) => void;
   variants: any[];
   setVariants: (variants: any[]) => void;
+  azureDevOpsWorkItem: string;
+  setAzureDevOpsWorkItem: (value: string) => void;
 }
 
 export function OverviewTab({
@@ -19,6 +22,8 @@ export function OverviewTab({
   onThumbnailChange,
   variants,
   setVariants,
+  azureDevOpsWorkItem,
+  setAzureDevOpsWorkItem,
 }: OverviewTabProps) {
   return (
     <div className="space-y-6">
@@ -55,8 +60,57 @@ export function OverviewTab({
         </div>
       </div>
 
+      {/* Azure DevOps Section */}
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold mb-4">Azure DevOps</h3>
+
+        {azureDevOpsWorkItem ? (
+          <div className="space-y-2">
+            <a
+              href={
+                azureDevOpsWorkItem.startsWith('http')
+                  ? azureDevOpsWorkItem
+                  : `https://dev.azure.com/${azureDevOpsWorkItem}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                />
+              </svg>
+              View in Azure DevOps
+            </a>
+            <button
+              onClick={() => setAzureDevOpsWorkItem('')}
+              className="ml-4 text-sm text-gray-500 hover:text-gray-700 underline"
+            >
+              Change
+            </button>
+          </div>
+        ) : (
+          <div>
+            <input
+              type="text"
+              value={azureDevOpsWorkItem}
+              onChange={(e) => setAzureDevOpsWorkItem(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              placeholder="Azure DevOps work item URL or ID..."
+            />
+            <p className="mt-2 text-xs text-gray-500">
+              Link to the Azure DevOps work item for this component
+            </p>
+          </div>
+        )}
+      </div>
+
       {/* Variants Section - Collapsible */}
-      <CollapsibleSection title="Component Variants" defaultOpen={true} icon="🎭">
+      <CollapsibleSection title="Component Variants" defaultOpen={true} Icon={RectangleGroupIcon}>
         {variants && variants.length > 0 ? (
           <VariantsSection variants={variants} setVariants={setVariants} />
         ) : (

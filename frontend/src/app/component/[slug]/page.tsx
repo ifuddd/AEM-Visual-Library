@@ -369,49 +369,7 @@ export default function ComponentDetailPage({
                 Updated {new Date(component.updatedAt).toLocaleDateString()}
               </div>
             )}
-
-            {/* Azure DevOps Work Item */}
-            {azureDevOpsWorkItem && (
-              <a
-                href={azureDevOpsWorkItem.startsWith('http') ? azureDevOpsWorkItem : `https://dev.azure.com/${azureDevOpsWorkItem}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-primary-600 hover:text-primary-700"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-                Azure DevOps
-              </a>
-            )}
           </div>
-
-          {/* Azure DevOps Input (if empty) */}
-          {!azureDevOpsWorkItem && (
-            <div className="mt-4">
-              <input
-                type="text"
-                value={azureDevOpsWorkItem}
-                onChange={(e) => setAzureDevOpsWorkItem(e.target.value)}
-                className="text-sm px-3 py-2 border border-gray-300 rounded-md w-96 focus:ring-primary-500 focus:border-primary-500"
-                placeholder="Azure DevOps work item URL or ID..."
-              />
-            </div>
-          )}
-
-          {/* Tags */}
-          {component.tags && component.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-4">
-              {component.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       </header>
 

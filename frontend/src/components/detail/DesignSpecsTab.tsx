@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { CollapsibleSection } from './CollapsibleSection';
 import { RichTextEditor } from './RichTextEditor';
 import { EmptyState } from './EmptyState';
 import { getFigmaEmbedUrl, isValidFigmaUrl } from '@/lib/figmaUtils';
@@ -54,8 +53,10 @@ export function DesignSpecsTab({
 
   return (
     <div className="space-y-6">
-      {/* Figma Preview Section */}
-      <CollapsibleSection title="Figma Design Preview" defaultOpen={true} icon="🎨">
+      {/* Figma Preview Section - Simple, not collapsible */}
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold mb-4">Figma Design Preview</h3>
+
         <div className="space-y-4">
           {/* Figma URL Input */}
           <div>
@@ -137,53 +138,17 @@ export function DesignSpecsTab({
             />
           )}
         </div>
-      </CollapsibleSection>
+      </div>
 
-      {/* Design Notes Section */}
-      <CollapsibleSection title="Design Specifications" defaultOpen={true} icon="📐">
-        {designSpecsNotes && designSpecsNotes.trim() && designSpecsNotes !== '<p></p>' ? (
-          <RichTextEditor
-            content={designSpecsNotes}
-            onChange={setDesignSpecsNotes}
-            placeholder="Document design specifications: spacing, colors, typography, Touch UI Dialog properties..."
-          />
-        ) : (
-          <div className="space-y-4">
-            <EmptyState
-              icon={
-                <svg
-                  className="w-12 h-12 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-              }
-              title="No design specifications yet"
-              message="Use this space to document visual specifications, spacing, colors, typography, and AEM Touch UI Dialog configuration for designers."
-              action={{
-                label: 'Start Writing Design Specs',
-                onClick: () => setDesignSpecsNotes('<h2>Design Specifications</h2><p></p>'),
-              }}
-            />
-          </div>
-        )}
-        {designSpecsNotes && designSpecsNotes.trim() && designSpecsNotes !== '<p></p>' && (
-          <div className="mt-4">
-            <RichTextEditor
-              content={designSpecsNotes}
-              onChange={setDesignSpecsNotes}
-              placeholder="Document design specifications: spacing, colors, typography, Touch UI Dialog properties..."
-            />
-          </div>
-        )}
-      </CollapsibleSection>
+      {/* Design Notes Section - Simple, one editor */}
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold mb-4">Design Specifications</h3>
+        <RichTextEditor
+          content={designSpecsNotes}
+          onChange={setDesignSpecsNotes}
+          placeholder="Document design specifications: spacing, colors, typography, Touch UI Dialog properties, component behavior..."
+        />
+      </div>
     </div>
   );
 }

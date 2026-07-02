@@ -5,6 +5,7 @@ import type { Component, ComponentVariant } from '@aem-portal/shared';
 import { OverviewTab } from './OverviewTab';
 import { DesignSpecsTab } from './DesignSpecsTab';
 import { UsageGuideTab } from './UsageGuideTab';
+import { DocumentTextIcon, SwatchIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 
 interface ComponentTabsProps {
   component: Component;
@@ -31,9 +32,9 @@ interface ComponentTabsProps {
 }
 
 const tabs = [
-  { id: 'overview', label: 'Overview', icon: '📋' },
-  { id: 'design-specs', label: 'Design specs', icon: '🎨' },
-  { id: 'usage-guide', label: 'Usage guide', icon: '📖' },
+  { id: 'overview', label: 'Overview', Icon: DocumentTextIcon },
+  { id: 'design-specs', label: 'Design specs', Icon: SwatchIcon },
+  { id: 'usage-guide', label: 'Usage guide', Icon: BookOpenIcon },
 ];
 
 export function ComponentTabs({
@@ -62,13 +63,13 @@ export function ComponentTabs({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex items-center px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === tab.id
                   ? 'border-primary-600 text-primary-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
               }`}
             >
-              <span className="mr-2">{tab.icon}</span>
+              <tab.Icon className="w-5 h-5 mr-2" />
               {tab.label}
             </button>
           ))}
@@ -84,6 +85,8 @@ export function ComponentTabs({
             onThumbnailChange={setThumbnailUrl}
             variants={variants}
             setVariants={setVariants}
+            azureDevOpsWorkItem={azureDevOpsWorkItem}
+            setAzureDevOpsWorkItem={setAzureDevOpsWorkItem}
           />
         )}
         {activeTab === 'design-specs' && (

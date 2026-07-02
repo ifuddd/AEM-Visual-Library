@@ -6,14 +6,14 @@ interface CollapsibleSectionProps {
   title: string;
   defaultOpen?: boolean;
   children: ReactNode;
-  icon?: string;
+  Icon?: React.ComponentType<{ className?: string }>;
 }
 
 export function CollapsibleSection({
   title,
   defaultOpen = true,
   children,
-  icon,
+  Icon,
 }: CollapsibleSectionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
@@ -26,7 +26,7 @@ export function CollapsibleSection({
         aria-expanded={isOpen}
       >
         <div className="flex items-center gap-2">
-          {icon && <span className="text-lg">{icon}</span>}
+          {Icon && <Icon className="w-5 h-5 text-gray-500" />}
           <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
         </div>
         <svg

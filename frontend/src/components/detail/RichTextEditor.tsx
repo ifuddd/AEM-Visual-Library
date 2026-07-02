@@ -9,6 +9,7 @@ import { TableRow } from '@tiptap/extension-table-row';
 import { TableCell } from '@tiptap/extension-table-cell';
 import { TableHeader } from '@tiptap/extension-table-header';
 import { useEffect } from 'react';
+import { LinkIcon } from '@heroicons/react/24/outline';
 
 interface RichTextEditorProps {
   content: string;
@@ -160,14 +161,14 @@ export function RichTextEditor({
               editor.chain().focus().setLink({ href: url }).run();
             }
           }}
-          className={`px-3 py-1 rounded text-sm ${
+          className={`px-3 py-1 rounded text-sm flex items-center ${
             editor.isActive('link')
               ? 'bg-primary-600 text-white'
               : 'bg-white border border-gray-300 hover:bg-gray-100'
           }`}
           title="Add Link"
         >
-          🔗
+          <LinkIcon className="w-4 h-4" />
         </button>
 
         {/* Blockquote */}
