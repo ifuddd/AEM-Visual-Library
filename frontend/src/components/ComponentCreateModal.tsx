@@ -19,14 +19,12 @@ export function ComponentCreateModal({ isOpen, onClose, teams }: ComponentCreate
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    ownerTeam: '',
     status: ComponentStatus.IN_REVIEW,
   });
 
   const [validationErrors, setValidationErrors] = useState({
     title: '',
     description: '',
-    ownerTeam: '',
   });
 
   const [thumbnail, setThumbnail] = useState<string | null>(null);
@@ -37,7 +35,6 @@ export function ComponentCreateModal({ isOpen, onClose, teams }: ComponentCreate
     const errors = {
       title: '',
       description: '',
-      ownerTeam: '',
     };
 
     if (!formData.title || formData.title.length < 3 || formData.title.length > 100) {
@@ -46,10 +43,6 @@ export function ComponentCreateModal({ isOpen, onClose, teams }: ComponentCreate
 
     if (!formData.description || formData.description.length < 10 || formData.description.length > 500) {
       errors.description = 'Description must be between 10 and 500 characters';
-    }
-
-    if (!formData.ownerTeam) {
-      errors.ownerTeam = 'Owner team is required';
     }
 
     setValidationErrors(errors);
@@ -125,10 +118,9 @@ export function ComponentCreateModal({ isOpen, onClose, teams }: ComponentCreate
       setFormData({
         title: '',
         description: '',
-        ownerTeam: '',
         status: ComponentStatus.IN_REVIEW,
       });
-      setValidationErrors({ title: '', description: '', ownerTeam: '' });
+      setValidationErrors({ title: '', description: '' });
       setError(null);
       setThumbnail(null);
       onClose();
@@ -202,32 +194,6 @@ export function ComponentCreateModal({ isOpen, onClose, teams }: ComponentCreate
               <p className="mt-1 text-sm text-red-600">{validationErrors.description}</p>
             )}
             <p className="mt-1 text-sm text-gray-500">10-500 characters</p>
-          </div>
-
-          {/* Owner Team */}
-          <div>
-            <label htmlFor="ownerTeam" className="block text-sm font-medium text-gray-700 mb-1">
-              Owner Team <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="ownerTeam"
-              value={formData.ownerTeam}
-              onChange={(e) => setFormData({ ...formData, ownerTeam: e.target.value })}
-              className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
-                validationErrors.ownerTeam ? 'border-red-500' : 'border-gray-300'
-              }`}
-              disabled={isSubmitting}
-            >
-              <option value="">Select a team...</option>
-              {teams.map((team) => (
-                <option key={team} value={team}>
-                  {team}
-                </option>
-              ))}
-            </select>
-            {validationErrors.ownerTeam && (
-              <p className="mt-1 text-sm text-red-600">{validationErrors.ownerTeam}</p>
-            )}
           </div>
 
           {/* Initial Status */}
