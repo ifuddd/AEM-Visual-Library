@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
+import { existsSync } from 'fs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,35 +24,22 @@ export async function POST(request: NextRequest) {
     const ext = mimeMatch ? mimeMatch[1] : 'png';
     const filename = `thumbnail-${Date.now()}.${ext}`;
 
-    // For now, return a mock URL (in production, this would call backend storage service)
-    // TODO: Call backend storage service when Azure Blob Storage is fully configured
-    const mockUrl = `https://placehold.co/400x300/${Math.random().toString(36).substring(7)}?text=Thumbnail`;
+    // Save to public/uploads directory
+    const uploadsDir = join(process.cwd(), 'public', 'uploads');
 
-    // In production, uncomment this and configure backend URL:
-    /*
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-    const uploadResponse = await fetch(`${backendUrl}/api/upload`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        buffer: base64Data,
-        filename,
-        contentType: `image/${ext}`,
-      }),
-    });
-
-    if (!uploadResponse.ok) {
-      throw new Error('Backend upload failed');
+    // Create uploads directory if it doesn't exist
+    if (!existsSync(uploadsDir)) {
+      await mkdir(uploadsDir, { recursive: true });
     }
 
-    const { url } = await uploadResponse.json();
-    return NextResponse.json({ url });
-    */
+    // Write file to disk
+    const filePath = join(uploadsDir, filename);
+    await writeFile(filePath, buffer);
 
-    // For now, return mock URL
-    return NextResponse.json({ url: mockUrl });
+    // Return the public URL
+    const url = `/uploads/${filename}`;
+
+    return NextResponse.json({ url });
   } catch (error) {
     console.error('Thumbnail upload error:', error);
     return NextResponse.json(
