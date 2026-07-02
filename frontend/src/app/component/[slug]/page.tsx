@@ -8,6 +8,7 @@ import { ComponentStatus } from '@aem-portal/shared';
 import type { Component } from '@aem-portal/shared';
 import { isValidFigmaUrl } from '@/lib/figmaUtils';
 import Link from 'next/link';
+import { LottieAnimation } from '@/components/LottieAnimation';
 
 const statusColors = {
   [ComponentStatus.READY]: 'bg-emerald-100 text-emerald-800',
@@ -312,9 +313,12 @@ export default function ComponentDetailPage({
                 {saveStatus === 'saving' && 'Saving...'}
                 {saveStatus === 'saved' && (
                   <span className="flex items-center gap-1">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
+                    <LottieAnimation
+                      animationPath="/animations/success.json"
+                      size="small"
+                      loop={false}
+                      autoplay={true}
+                    />
                     Saved
                   </span>
                 )}

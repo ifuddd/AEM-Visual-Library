@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Lottie, { LottieRefCurrentProps } from 'lottie-react';
 
 interface LottieAnimationProps {
@@ -25,7 +25,8 @@ export function LottieAnimation({
   className = '',
 }: LottieAnimationProps) {
   const lottieRef = useRef<LottieRefCurrentProps>(null);
-  const animationData = useRef<any>(null);
+  const [animationData, setAnimationData] = useState<any>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     // Dynamically import animation JSON
@@ -37,20 +38,25 @@ export function LottieAnimation({
         return response.json();
       })
       .then((data) => {
-        animationData.current = data;
+        setAnimationData(data);
+        setError(false);
       })
       .catch((error) => {
         console.error('Error loading Lottie animation:', error);
+        setError(true);
       });
   }, [animationPath]);
 
-  if (!animationData.current) {
-    // Return placeholder while loading
+  const width = sizeMap[size];
+  const height = sizeMap[size];
+
+  // Show nothing while loading or on error
+  if (!animationData || error) {
     return (
       <div
         style={{
-          width: sizeMap[size],
-          height: sizeMap[size],
+          width,
+          height,
         }}
         className={className}
       />
@@ -60,14 +66,14 @@ export function LottieAnimation({
   return (
     <div
       style={{
-        width: sizeMap[size],
-        height: sizeMap[size],
+        width,
+        height,
       }}
       className={className}
     >
       <Lottie
         lottieRef={lottieRef}
-        animationData={animationData.current}
+        animationData={animationData}
         loop={loop}
         autoplay={autoplay}
       />
