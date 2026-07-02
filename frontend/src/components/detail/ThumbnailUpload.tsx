@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
+import { ComponentImage } from '@/components/common/ComponentImage';
 
 interface ThumbnailUploadProps {
   thumbnailUrl: string | null;
@@ -56,18 +57,19 @@ export function ThumbnailUpload({ thumbnailUrl, onThumbnailChange }: ThumbnailUp
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {/* Preview */}
       {thumbnailUrl ? (
-        <div className="relative inline-block">
-          <img
+        <div className="relative w-full max-w-sm">
+          <ComponentImage
             src={thumbnailUrl}
             alt="Component thumbnail"
-            className="w-32 h-32 object-cover rounded-lg border-2 border-gray-300"
+            aspectRatio="16/9"
+            className="rounded-lg border-2 border-gray-300"
           />
           <button
             onClick={handleRemove}
-            className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700 shadow-md"
+            className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700 shadow-md z-10"
             title="Remove thumbnail"
           >
             <XMarkIcon className="w-4 h-4" />
@@ -76,11 +78,11 @@ export function ThumbnailUpload({ thumbnailUrl, onThumbnailChange }: ThumbnailUp
       ) : (
         <div
           onClick={handleClick}
-          className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-primary-500 hover:bg-gray-50 transition-colors"
+          className="w-full max-w-sm aspect-video border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-primary-500 hover:bg-gray-50 transition-colors"
         >
           <div className="text-center">
             <svg
-              className="w-10 h-10 mx-auto text-gray-400"
+              className="w-12 h-12 mx-auto text-gray-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -92,7 +94,7 @@ export function ThumbnailUpload({ thumbnailUrl, onThumbnailChange }: ThumbnailUp
                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
               />
             </svg>
-            <p className="text-xs text-gray-500 mt-1">Click to upload</p>
+            <p className="text-sm text-gray-600 mt-2">Click to upload</p>
           </div>
         </div>
       )}
@@ -123,7 +125,7 @@ export function ThumbnailUpload({ thumbnailUrl, onThumbnailChange }: ThumbnailUp
 
       {/* Help Text */}
       <p className="text-xs text-gray-500">
-        JPG, PNG, or WebP. Max size: 5MB. Recommended: 400x300px
+        JPG, PNG, or WebP. Max size: 5MB. Recommended: 800x450px (16:9)
       </p>
     </div>
   );

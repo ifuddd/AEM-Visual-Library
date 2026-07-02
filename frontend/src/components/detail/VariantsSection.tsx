@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { ComponentVariant } from '@aem-portal/shared';
+import { ComponentImage } from '@/components/common/ComponentImage';
 
 interface VariantsSectionProps {
   variants: ComponentVariant[];
@@ -145,11 +146,14 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
                     </label>
                     {editForm.imageUrl ? (
                       <div className="space-y-2">
-                        <img
-                          src={editForm.imageUrl}
-                          alt="Variant preview"
-                          className="max-w-md h-auto border border-gray-300 rounded-md"
-                        />
+                        <div className="max-w-md">
+                          <ComponentImage
+                            src={editForm.imageUrl}
+                            alt="Variant preview"
+                            aspectRatio="16/9"
+                            className="border border-gray-300 rounded-md"
+                          />
+                        </div>
                         <button
                           onClick={handleRemoveImage}
                           className="text-sm text-red-600 hover:text-red-700"
@@ -197,11 +201,14 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
                 // View Mode
                 <div className="flex items-start gap-4">
                   {variant.imageUrl && (
-                    <img
-                      src={variant.imageUrl}
-                      alt={variant.name}
-                      className="w-32 h-20 object-cover border border-gray-300 rounded-md flex-shrink-0"
-                    />
+                    <div className="w-48 flex-shrink-0">
+                      <ComponentImage
+                        src={variant.imageUrl}
+                        alt={variant.name}
+                        aspectRatio="16/9"
+                        className="border border-gray-300 rounded-md"
+                      />
+                    </div>
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-4">

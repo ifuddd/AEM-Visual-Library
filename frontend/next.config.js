@@ -11,10 +11,15 @@ const nextConfig = {
       {
         protocol: 'http',
         hostname: 'localhost',
+        port: '3000',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.blob.core.windows.net',
       },
     ],
-    // Disable optimization for placehold.co to avoid 400 errors
     unoptimized: false,
+    formats: ['image/avif', 'image/webp'],
   },
   // Rewrites removed - using Next.js API routes instead of external backend
 };
