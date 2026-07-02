@@ -37,6 +37,8 @@ export default function ComponentDetailPage({
   const [designSpecsNotes, setDesignSpecsNotes] = useState('');
   const [variants, setVariants] = useState<any[]>([]);
   const [azureDevOpsWorkItem, setAzureDevOpsWorkItem] = useState('');
+  const [limitations, setLimitations] = useState<string[]>([]);
+  const [dialogSchema, setDialogSchema] = useState<Record<string, any>>({});
 
   // Thumbnail state
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
@@ -57,6 +59,8 @@ export default function ComponentDetailPage({
       setDesignSpecsNotes(component.designSpecsNotes || '');
       setVariants(component.variants || []);
       setAzureDevOpsWorkItem(component.azureDevOpsWorkItem || '');
+      setLimitations(component.aemMetadata?.limitations || []);
+      setDialogSchema(component.aemMetadata?.dialogSchema || {});
       setThumbnailUrl(component.visualAssets?.thumbnailUrl || null);
     }
   }, [component]);
@@ -74,7 +78,9 @@ export default function ComponentDetailPage({
       designSpecsNotes !== (component.designSpecsNotes || '') ||
       thumbnailBase64 !== null ||
       JSON.stringify(variants) !== JSON.stringify(component.variants || []) ||
-      azureDevOpsWorkItem !== (component.azureDevOpsWorkItem || '');
+      azureDevOpsWorkItem !== (component.azureDevOpsWorkItem || '') ||
+      JSON.stringify(limitations) !== JSON.stringify(component.aemMetadata?.limitations || []) ||
+      JSON.stringify(dialogSchema) !== JSON.stringify(component.aemMetadata?.dialogSchema || {});
 
     setHasUnsavedChanges(hasChanges);
   }, [
@@ -87,6 +93,8 @@ export default function ComponentDetailPage({
     thumbnailBase64,
     variants,
     azureDevOpsWorkItem,
+    limitations,
+    dialogSchema,
     component,
   ]);
 
@@ -182,7 +190,7 @@ export default function ComponentDetailPage({
       }
     }
 
-    const updateData = {
+    const updateData: any = {
       title,
       description,
       status,
@@ -191,6 +199,11 @@ export default function ComponentDetailPage({
       designSpecsNotes,
       variants,
       azureDevOpsWorkItem,
+      aemMetadata: {
+        ...(component?.aemMetadata || {}),
+        limitations,
+        dialogSchema,
+      },
       ...(finalThumbnailUrl && {
         visualAssets: {
           thumbnailUrl: finalThumbnailUrl,
@@ -403,6 +416,10 @@ export default function ComponentDetailPage({
           setAuthoringNotes={setAuthoringNotes}
           azureDevOpsWorkItem={azureDevOpsWorkItem}
           setAzureDevOpsWorkItem={setAzureDevOpsWorkItem}
+          limitations={limitations}
+          setLimitations={setLimitations}
+          dialogSchema={dialogSchema}
+          setDialogSchema={setDialogSchema}
         />
       </main>
 

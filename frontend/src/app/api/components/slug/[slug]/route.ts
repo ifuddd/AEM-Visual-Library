@@ -99,6 +99,10 @@ export async function PATCH(
     const visualAssets = updateData.visualAssets || {};
     delete updateData.visualAssets;
 
+    // Handle aemMetadata nested structure - flatten to storage format
+    const aemMetadata = updateData.aemMetadata || {};
+    delete updateData.aemMetadata;
+
     // Update the component
     mockComponents[componentIndex] = {
       ...mockComponents[componentIndex],
@@ -107,6 +111,12 @@ export async function PATCH(
       thumbnailUrl: visualAssets.thumbnailUrl ?? mockComponents[componentIndex].thumbnailUrl,
       screenshotAuthorUrl: visualAssets.screenshotAuthorUrl ?? mockComponents[componentIndex].screenshotAuthorUrl,
       screenshotPublishedUrl: visualAssets.screenshotPublishedUrl ?? mockComponents[componentIndex].screenshotPublishedUrl,
+      // Merge aemMetadata fields (flatten nested structure to storage format)
+      ...(aemMetadata.componentPath !== undefined && { aemComponentPath: aemMetadata.componentPath }),
+      ...(aemMetadata.dialogSchema !== undefined && { aemDialogSchema: aemMetadata.dialogSchema }),
+      ...(aemMetadata.allowedChildren !== undefined && { aemAllowedChildren: aemMetadata.allowedChildren }),
+      ...(aemMetadata.templateConstraints !== undefined && { aemTemplateConstraints: aemMetadata.templateConstraints }),
+      ...(aemMetadata.limitations !== undefined && { aemLimitations: aemMetadata.limitations }),
       updatedAt: new Date(),
     };
 
