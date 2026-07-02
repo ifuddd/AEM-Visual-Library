@@ -61,16 +61,9 @@ export function ComponentCard({ component }: ComponentCardProps) {
           </span>
         </div>
 
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+        <p className="text-sm text-gray-600 line-clamp-2">
           {component.description}
         </p>
-
-        {/* Owner */}
-        {component.ownerTeam && (
-          <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
-            {component.ownerTeam}
-          </div>
-        )}
       </div>
     </Link>
   );

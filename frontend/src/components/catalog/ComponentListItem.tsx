@@ -51,16 +51,9 @@ export function ComponentListItem({ component }: ComponentListItemProps) {
           </div>
 
           {/* Description - 3 lines for more context */}
-          <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+          <p className="text-sm text-gray-600 line-clamp-3">
             {component.description}
           </p>
-
-          {/* Owner - pushed to bottom */}
-          {component.ownerTeam && (
-            <div className="mt-auto pt-3 border-t border-gray-100 text-xs text-gray-500">
-              {component.ownerTeam}
-            </div>
-          )}
         </div>
       </div>
     </Link>

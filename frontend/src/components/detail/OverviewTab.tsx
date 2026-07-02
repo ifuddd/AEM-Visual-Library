@@ -60,37 +60,55 @@ export function OverviewTab({
         </div>
       </div>
 
-      {/* Azure DevOps Section */}
+      {/* ADO Tickets Section */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold mb-4">Azure DevOps</h3>
+        <h3 className="text-lg font-semibold mb-4">ADO Tickets</h3>
 
         {azureDevOpsWorkItem ? (
-          <div className="space-y-2">
-            <a
-              href={
-                azureDevOpsWorkItem.startsWith('http')
-                  ? azureDevOpsWorkItem
-                  : `https://dev.azure.com/${azureDevOpsWorkItem}`
-              }
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                />
-              </svg>
-              View in Azure DevOps
-            </a>
+          <div className="space-y-3">
+            {/* Display ticket as a chip */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <a
+                href={
+                  azureDevOpsWorkItem.startsWith('http')
+                    ? azureDevOpsWorkItem
+                    : `https://dev.azure.com/${azureDevOpsWorkItem}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+                <span className="text-sm font-medium">
+                  {azureDevOpsWorkItem.includes('/_workitems/edit/')
+                    ? `#${azureDevOpsWorkItem.split('/_workitems/edit/')[1]?.split('/')[0]}`
+                    : azureDevOpsWorkItem.length > 40
+                    ? azureDevOpsWorkItem.substring(0, 40) + '...'
+                    : azureDevOpsWorkItem}
+                </span>
+              </a>
+              <button
+                onClick={() => setAzureDevOpsWorkItem('')}
+                className="inline-flex items-center justify-center w-6 h-6 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                title="Remove ticket"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
             <button
               onClick={() => setAzureDevOpsWorkItem('')}
-              className="ml-4 text-sm text-gray-500 hover:text-gray-700 underline"
+              className="text-sm text-primary-600 hover:text-primary-700 underline"
             >
-              Change
+              + Add another ticket
             </button>
           </div>
         ) : (
@@ -100,10 +118,10 @@ export function OverviewTab({
               value={azureDevOpsWorkItem}
               onChange={(e) => setAzureDevOpsWorkItem(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-              placeholder="Azure DevOps work item URL or ID..."
+              placeholder="Paste ADO work item URL or ID..."
             />
             <p className="mt-2 text-xs text-gray-500">
-              Link to the Azure DevOps work item for this component
+              e.g., https://dev.azure.com/org/project/_workitems/edit/12345
             </p>
           </div>
         )}
