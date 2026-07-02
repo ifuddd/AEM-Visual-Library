@@ -27,8 +27,6 @@ interface ComponentTabsProps {
   setAuthoringNotes: (value: string) => void;
   limitations: string[];
   setLimitations: (value: string[]) => void;
-  dialogSchema: Record<string, any>;
-  setDialogSchema: (value: Record<string, any>) => void;
 
   // Metadata
   azureDevOpsWorkItem: string;
@@ -57,8 +55,6 @@ export function ComponentTabs({
   setAzureDevOpsWorkItem,
   limitations,
   setLimitations,
-  dialogSchema,
-  setDialogSchema,
 }: ComponentTabsProps) {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -110,11 +106,10 @@ export function ComponentTabs({
             authoringNotes={authoringNotes}
             setAuthoringNotes={setAuthoringNotes}
             variants={variants}
+            setVariants={setVariants}
             aemMetadata={component.aemMetadata}
             limitations={limitations}
             setLimitations={setLimitations}
-            dialogSchema={dialogSchema}
-            setDialogSchema={setDialogSchema}
           />
         )}
       </div>

@@ -38,7 +38,6 @@ export default function ComponentDetailPage({
   const [variants, setVariants] = useState<any[]>([]);
   const [azureDevOpsWorkItem, setAzureDevOpsWorkItem] = useState('');
   const [limitations, setLimitations] = useState<string[]>([]);
-  const [dialogSchema, setDialogSchema] = useState<Record<string, any>>({});
 
   // Thumbnail state
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
@@ -60,7 +59,6 @@ export default function ComponentDetailPage({
       setVariants(component.variants || []);
       setAzureDevOpsWorkItem(component.azureDevOpsWorkItem || '');
       setLimitations(component.aemMetadata?.limitations || []);
-      setDialogSchema(component.aemMetadata?.dialogSchema || {});
       setThumbnailUrl(component.visualAssets?.thumbnailUrl || null);
     }
   }, [component]);
@@ -79,8 +77,7 @@ export default function ComponentDetailPage({
       thumbnailBase64 !== null ||
       JSON.stringify(variants) !== JSON.stringify(component.variants || []) ||
       azureDevOpsWorkItem !== (component.azureDevOpsWorkItem || '') ||
-      JSON.stringify(limitations) !== JSON.stringify(component.aemMetadata?.limitations || []) ||
-      JSON.stringify(dialogSchema) !== JSON.stringify(component.aemMetadata?.dialogSchema || {});
+      JSON.stringify(limitations) !== JSON.stringify(component.aemMetadata?.limitations || []);
 
     setHasUnsavedChanges(hasChanges);
   }, [
@@ -94,7 +91,6 @@ export default function ComponentDetailPage({
     variants,
     azureDevOpsWorkItem,
     limitations,
-    dialogSchema,
     component,
   ]);
 
@@ -202,7 +198,6 @@ export default function ComponentDetailPage({
       aemMetadata: {
         ...(component?.aemMetadata || {}),
         limitations,
-        dialogSchema,
       },
       ...(finalThumbnailUrl && {
         visualAssets: {
@@ -418,8 +413,6 @@ export default function ComponentDetailPage({
           setAzureDevOpsWorkItem={setAzureDevOpsWorkItem}
           limitations={limitations}
           setLimitations={setLimitations}
-          dialogSchema={dialogSchema}
-          setDialogSchema={setDialogSchema}
         />
       </main>
 
