@@ -231,15 +231,17 @@ export function DialogSchemaEditor({ dialogSchema, setDialogSchema }: DialogSche
                   onClick={() => handleEdit(fieldName)}
                   className="p-1 text-primary-600 hover:bg-primary-50 rounded"
                   title="Edit"
+                  aria-label={`Edit ${fieldName} field`}
                 >
-                  <PencilIcon className="w-4 h-4" />
+                  <PencilIcon className="w-4 h-4" aria-hidden="true" />
                 </button>
                 <button
                   onClick={() => handleDelete(fieldName)}
                   className="p-1 text-red-600 hover:bg-red-50 rounded"
                   title="Delete"
+                  aria-label={`Delete ${fieldName} field`}
                 >
-                  <TrashIcon className="w-4 h-4" />
+                  <TrashIcon className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
             </div>

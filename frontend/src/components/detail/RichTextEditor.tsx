@@ -33,7 +33,8 @@ export function RichTextEditor({
       }),
       Link.configure({
         openOnClick: false,
-        HTMLAttributes: { class: 'text-primary-600 underline' },
+        HTMLAttributes: { class: 'text-primary-600 underline', rel: 'noopener noreferrer' },
+        validate: (href) => /^https?:\/\//i.test(href),
       }),
       Image.configure({
         HTMLAttributes: { class: 'max-w-full h-auto' },

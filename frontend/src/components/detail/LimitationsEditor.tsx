@@ -101,15 +101,17 @@ export function LimitationsEditor({ limitations, setLimitations }: LimitationsEd
                   onClick={() => handleEdit(index)}
                   className="p-1 text-amber-600 hover:bg-amber-50 rounded"
                   title="Edit"
+                  aria-label="Edit limitation"
                 >
-                  <PencilIcon className="w-4 h-4" />
+                  <PencilIcon className="w-4 h-4" aria-hidden="true" />
                 </button>
                 <button
                   onClick={() => handleDelete(index)}
                   className="p-1 text-red-600 hover:bg-red-50 rounded"
                   title="Delete"
+                  aria-label="Delete limitation"
                 >
-                  <TrashIcon className="w-4 h-4" />
+                  <TrashIcon className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
             </div>

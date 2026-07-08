@@ -125,6 +125,8 @@ export default function ComponentDetailPage({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['component', slug] });
       setSaveStatus('saved');
+      setThumbnailBase64(null);
+      setHasUnsavedChanges(false);
       setTimeout(() => setSaveStatus('idle'), 2000);
     },
     onError: () => {
@@ -212,8 +214,6 @@ export default function ComponentDetailPage({
     };
 
     updateMutation.mutate(updateData);
-    setThumbnailBase64(null);
-    setHasUnsavedChanges(false);
   };
 
   if (isLoading) {

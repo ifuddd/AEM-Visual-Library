@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { mockComponents } from '@/data/mockComponents';
 import type { Component, ComponentStatus } from '@aem-portal/shared';
 
+const VALID_STATUS = new Set(['ready', 'in_review']);
+
 function mapToComponent(component: any): Component {
   return {
     id: component.id,
@@ -13,13 +15,12 @@ function mapToComponent(component: any): Component {
     ownerEmail: component.ownerEmail,
     ownerTeam: component.ownerTeam,
 
-    // New editing fields
     variants: component.variants || [],
     authoringNotes: component.authoringNotes || null,
+    designSpecsNotes: component.designSpecsNotes || null,
     azureDevOpsWorkItem: component.azureDevOpsWorkItem || null,
     figmaLink: component.figmaLink || null,
 
-    // Legacy fields
     repoLink: component.repoLink || null,
     azureWikiPath: component.azureWikiPath || null,
     azureWikiUrl: component.azureWikiUrl || null,
@@ -53,12 +54,11 @@ export async function GET(request: NextRequest) {
   const tags = searchParams.getAll('tags');
   const status = searchParams.getAll('status') as ComponentStatus[];
   const ownerTeam = searchParams.get('ownerTeam');
-  const page = parseInt(searchParams.get('page') || '1');
-  const pageSize = parseInt(searchParams.get('pageSize') || '20');
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1') || 1);
+  const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get('pageSize') || '20') || 20));
 
   let filtered = [...mockComponents];
 
-  // Apply search filter
   if (search) {
     const searchLower = search.toLowerCase();
     filtered = filtered.filter(
@@ -69,24 +69,20 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Apply status filter
   if (status && status.length > 0) {
     filtered = filtered.filter((c) => status.includes(c.status as any));
   }
 
-  // Apply tags filter
   if (tags && tags.length > 0) {
     filtered = filtered.filter((c) =>
       c.tags.some((tag) => tags.includes(tag))
     );
   }
 
-  // Apply ownerTeam filter
   if (ownerTeam) {
     filtered = filtered.filter((c) => c.ownerTeam === ownerTeam);
   }
 
-  // Calculate pagination
   const total = filtered.length;
   const totalPages = Math.ceil(total / pageSize);
   const start = (page - 1) * pageSize;
@@ -108,67 +104,69 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
 
-    // Generate slug from title
+    if (!data.title?.trim() || !data.description?.trim() || !data.ownerTeam?.trim()) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: { message: 'Missing required fields: title, description, ownerTeam', code: 'VALIDATION_ERROR' },
+        },
+        { status: 400 }
+      );
+    }
+
+    if (data.status && !VALID_STATUS.has(data.status)) {
+      return NextResponse.json(
+        { success: false, error: { message: 'Invalid status value', code: 'INVALID_STATUS' } },
+        { status: 400 }
+      );
+    }
+
     const slug = data.title
       .toLowerCase()
       .replace(/\s+/g, '-')
       .replace(/[^a-z0-9-]/g, '');
 
-    // Check if slug already exists
     if (mockComponents.find((c) => c.slug === slug)) {
       return NextResponse.json(
         {
           success: false,
-          error: {
-            message: 'Component with this title already exists',
-            code: 'DUPLICATE_SLUG',
-          },
+          error: { message: 'Component with this title already exists', code: 'DUPLICATE_SLUG' },
         },
         { status: 409 }
       );
     }
 
     const newComponent = {
-      id: String(mockComponents.length + 1),
+      id: crypto.randomUUID(),
       slug,
-      title: data.title,
-      description: data.description,
+      title: data.title.trim(),
+      description: data.description.trim(),
       tags: data.tags || [],
       status: data.status || 'in_review',
       ownerEmail: data.ownerEmail || '',
-      ownerTeam: data.ownerTeam,
+      ownerTeam: data.ownerTeam.trim(),
 
-      // New editing fields
       variants: data.variants || [],
       authoringNotes: data.authoringNotes || '',
+      designSpecsNotes: data.designSpecsNotes || '',
       azureDevOpsWorkItem: data.azureDevOpsWorkItem || '',
       figmaLink: data.figmaLink || '',
 
-      // Legacy fields
       figmaLinks: [],
 
       lastSyncedAt: new Date(),
       lastUpdatedBy: 'system',
-      lastUpdatedSource: 'MANUAL' as const,
+      lastUpdatedSource: 'manual' as const,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
     mockComponents.push(newComponent);
 
-    return NextResponse.json({
-      success: true,
-      data: mapToComponent(newComponent),
-    }, { status: 201 });
+    return NextResponse.json({ success: true, data: mapToComponent(newComponent) }, { status: 201 });
   } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: 'Failed to create component',
-          code: 'CREATE_FAILED',
-        },
-      },
+      { success: false, error: { message: 'Failed to create component', code: 'CREATE_FAILED' } },
       { status: 500 }
     );
   }

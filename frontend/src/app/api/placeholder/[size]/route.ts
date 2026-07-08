@@ -1,24 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Simple SVG placeholder generator
+const HEX_RE = /^[0-9a-fA-F]{3,6}$/;
+
+function xmlEscape(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { size: string } }
 ) {
   const { size } = params;
   const searchParams = request.nextUrl.searchParams;
-  const text = searchParams.get('text') || 'Image';
+  const rawText = searchParams.get('text') || 'Image';
   const bg = searchParams.get('bg') || '2563eb';
   const fg = searchParams.get('fg') || 'ffffff';
 
-  // Parse size (e.g., "400x300")
+  if (!HEX_RE.test(bg) || !HEX_RE.test(fg)) {
+    return new NextResponse('Invalid color parameter', { status: 400 });
+  }
+
   const [width, height] = size.split('x').map(Number);
 
-  if (!width || !height || width > 2000 || height > 2000) {
+  if (!width || !height || width < 1 || height < 1 || width > 2000 || height > 2000) {
     return new NextResponse('Invalid size', { status: 400 });
   }
 
-  // Generate SVG
+  const text = xmlEscape(rawText);
+
   const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
   <rect width="100%" height="100%" fill="#${bg}"/>
   <text
