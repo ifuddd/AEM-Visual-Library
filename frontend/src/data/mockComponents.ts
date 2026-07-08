@@ -130,38 +130,113 @@ export const mockComponents: MockComponent[] = [
     ownerEmail: 'design-system@example.com',
     ownerTeam: 'Design System',
 
-    // New editing fields
+    // New editing fields with state images
     variants: [
       {
         id: 'v1',
         name: 'Primary',
-        description: 'High emphasis button for main actions',
-        imageUrl: 'http://localhost:3000/api/placeholder/400x200/059669/ffffff?text=Primary+Button',
+        description: 'High-emphasis button for the most important action on the page. Use solid background with high contrast.',
         order: 0,
+        stateImages: {
+          default: 'http://localhost:3000/api/placeholder/400x100/059669/ffffff?text=Primary+Default',
+          hover: 'http://localhost:3000/api/placeholder/400x100/047857/ffffff?text=Primary+Hover',
+          focus: 'http://localhost:3000/api/placeholder/400x100/065f46/ffffff?text=Primary+Focus',
+          disabled: 'http://localhost:3000/api/placeholder/400x100/d1d5db/9ca3af?text=Primary+Disabled',
+        },
       },
       {
         id: 'v2',
         name: 'Secondary',
-        description: 'Medium emphasis button for secondary actions',
-        imageUrl: 'http://localhost:3000/api/placeholder/400x200/047857/ffffff?text=Secondary+Button',
+        description: 'Medium-emphasis button for supporting actions. Outlined style with transparent background.',
         order: 1,
+        stateImages: {
+          default: 'http://localhost:3000/api/placeholder/400x100/ffffff/059669?text=Secondary+Default',
+          hover: 'http://localhost:3000/api/placeholder/400x100/f0fdf4/059669?text=Secondary+Hover',
+          focus: 'http://localhost:3000/api/placeholder/400x100/dcfce7/059669?text=Secondary+Focus',
+          disabled: 'http://localhost:3000/api/placeholder/400x100/f9fafb/d1d5db?text=Secondary+Disabled',
+        },
       },
       {
         id: 'v3',
-        name: 'Ghost',
-        description: 'Low emphasis transparent button',
+        name: 'Tertiary',
+        description: 'Low-emphasis button for less critical actions. Text-based style with minimal decoration.',
         order: 2,
+        stateImages: {
+          default: 'http://localhost:3000/api/placeholder/400x100/ffffff/6b7280?text=Tertiary+Default',
+          hover: 'http://localhost:3000/api/placeholder/400x100/f9fafb/4b5563?text=Tertiary+Hover',
+          focus: 'http://localhost:3000/api/placeholder/400x100/f3f4f6/374151?text=Tertiary+Focus',
+          disabled: 'http://localhost:3000/api/placeholder/400x100/ffffff/d1d5db?text=Tertiary+Disabled',
+        },
+      },
+      {
+        id: 'v4',
+        name: 'Ghost',
+        description: 'Minimal button with transparent background. Use on colored backgrounds or when maximum subtlety is needed.',
+        order: 3,
+        stateImages: {
+          default: 'http://localhost:3000/api/placeholder/400x100/ffffff/059669?text=Ghost+Default',
+          hover: 'http://localhost:3000/api/placeholder/400x100/f0fdf4/059669?text=Ghost+Hover',
+          focus: 'http://localhost:3000/api/placeholder/400x100/dcfce7/059669?text=Ghost+Focus',
+          disabled: 'http://localhost:3000/api/placeholder/400x100/ffffff/d1d5db?text=Ghost+Disabled',
+        },
       },
     ],
-    authoringNotes: '<h2>Button Usage</h2><p>CTA buttons should be used for important user actions like form submissions, downloads, or navigation to key pages.</p><h3>Accessibility</h3><ul><li>Minimum touch target: 44x44px</li><li>Ensure 3:1 contrast ratio for text</li><li>Use descriptive button text (avoid "Click Here")</li></ul>',
-    figmaLink: 'https://www.figma.com/file/abc123/Design-System?node-id=200-300',
+    authoringNotes: '<h2>CTA Button Component</h2><h3>When to Use</h3><p><strong>✅ Use CTA Button for:</strong></p><ul><li>Primary actions (sign up, download, submit)</li><li>Secondary actions (learn more, cancel)</li><li>Navigation to key pages</li><li>Form submissions</li><li>Downloads and external links</li></ul><p><strong>❌ Do NOT use for:</strong></p><ul><li>Text links within paragraphs (use standard link)</li><li>Navigation menus (use navigation component)</li><li>Inline actions within tables (use action icons)</li></ul><h3>Variant Guidelines</h3><ul><li><strong>Primary:</strong> Main action you want users to take (max 1 per page section)</li><li><strong>Secondary:</strong> Supporting primary actions or standalone important actions</li><li><strong>Tertiary:</strong> Multiple actions with visual hierarchy needed</li><li><strong>Ghost:</strong> On colored backgrounds or maximum subtlety</li></ul><h3>Best Practices</h3><ul><li>Keep button text under 30 characters</li><li>Use action verbs (Get Started, Download, Learn More)</li><li>Avoid generic text like "Click Here" or "Submit"</li><li>Ensure minimum 44x44px touch target for mobile</li><li>Maintain 4.5:1 contrast ratio for accessibility</li></ul><h3>Accessibility</h3><ul><li>All buttons are keyboard accessible (Tab navigation)</li><li>Focus indicators are always visible</li><li>Screen reader compatible</li><li>Meets WCAG 2.1 AA standards</li></ul>',
+    designSpecsNotes: '<h2>Design Specifications</h2><h3>Typography</h3><ul><li>Font weight: 600 (semibold)</li><li>Font size: 0.875rem (small), 1rem (medium), 1.125rem (large)</li><li>Line height: 1.5</li><li>Letter spacing: 0.02em</li></ul><h3>Spacing</h3><ul><li>Small: 0.5rem (top/bottom), 1rem (left/right)</li><li>Medium: 0.75rem (top/bottom), 1.5rem (left/right)</li><li>Large: 1rem (top/bottom), 2rem (left/right)</li><li>Icon gap: 0.5rem</li></ul><h3>Colors (Primary Variant)</h3><ul><li>Background (default): #059669 (green-600)</li><li>Background (hover): #047857 (green-700)</li><li>Text: #FFFFFF (white)</li><li>Focus ring: 2px solid currentColor, 2px offset</li></ul><h3>Borders & Corners</h3><ul><li>Border radius: 0.375rem (6px)</li><li>Secondary border: 2px solid currentColor</li></ul><h3>Touch UI Dialog</h3><p>The Touch UI dialog contains the following configurable fields:</p><ul><li><strong>Button Text</strong> (textfield, required, max 30 chars)</li><li><strong>Link</strong> (pathfield, required)</li><li><strong>Variant</strong> (select: primary, secondary, tertiary, ghost)</li><li><strong>Size</strong> (select: small, medium, large)</li><li><strong>Open in New Tab</strong> (checkbox)</li><li><strong>Icon</strong> (select: none, arrow-right, download, external)</li></ul>',
+    figmaLink: 'https://www.figma.com/design/nqhhQSjIlZbPChqOfdO3TQ/%E2%9C%A8-Design-System-for-AEM-v2-%E2%9C%A8?node-id=15310-1885',
 
     // Legacy fields
     repoLink: 'https://github.com/example/aem-components/tree/main/cta-button',
     azureWikiPath: '/Components/CTA-Button',
-    figmaLinks: ['https://www.figma.com/file/abc123/Design-System?node-id=200-300'],
+    figmaLinks: ['https://www.figma.com/design/nqhhQSjIlZbPChqOfdO3TQ/%E2%9C%A8-Design-System-for-AEM-v2-%E2%9C%A8?node-id=15310-1885'],
 
     aemComponentPath: '/apps/myproject/components/cta-button',
+    aemDialogSchema: {
+      text: {
+        type: 'textfield',
+        label: 'Button Text',
+        required: true,
+        maxlength: 30,
+        description: 'Use action verbs. Keep concise.'
+      },
+      link: {
+        type: 'pathfield',
+        label: 'Link URL',
+        required: true,
+        description: 'Internal path or external URL'
+      },
+      variant: {
+        type: 'select',
+        label: 'Button Variant',
+        options: ['primary', 'secondary', 'tertiary', 'ghost'],
+        default: 'primary',
+        description: 'Visual style - use primary for main actions'
+      },
+      size: {
+        type: 'select',
+        label: 'Button Size',
+        options: ['small', 'medium', 'large'],
+        default: 'medium'
+      },
+      openInNewTab: {
+        type: 'checkbox',
+        label: 'Open in New Tab',
+        description: 'Check for external links or PDFs'
+      },
+      icon: {
+        type: 'select',
+        label: 'Icon',
+        options: ['none', 'arrow-right', 'download', 'external'],
+        default: 'none'
+      }
+    },
+    aemLimitations: [
+      'No custom icon upload support - limited to predefined icons',
+      'Button text limited to 30 characters',
+      'No support for multi-line button text',
+      'Icon always appears after text (no left-side icons)',
+      'Cannot disable the button programmatically in Touch UI'
+    ],
     thumbnailUrl: 'http://localhost:3000/api/placeholder/400x300/059669/ffffff?text=CTA+Button',
     screenshotAuthorUrl: 'http://localhost:3000/api/placeholder/1200x800/047857/ffffff?text=Button+Author',
     screenshotPublishedUrl: 'http://localhost:3000/api/placeholder/1200x800/065f46/ffffff?text=Button+Published',

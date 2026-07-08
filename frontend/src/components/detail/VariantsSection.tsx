@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { ComponentVariant } from '@aem-portal/shared';
 import { ComponentImage } from '@/components/common/ComponentImage';
+import { StateImageMatrix } from './StateImageMatrix';
 
 interface VariantsSectionProps {
   variants: ComponentVariant[];
@@ -199,30 +200,19 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
                 </div>
               ) : (
                 // View Mode
-                <div className="flex items-start gap-4">
-                  {variant.imageUrl && (
-                    <div className="w-48 flex-shrink-0">
-                      <ComponentImage
-                        src={variant.imageUrl}
-                        alt={variant.name}
-                        aspectRatio="16/9"
-                        className="border border-gray-300 rounded-md"
-                      />
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900">
+                        {index + 1}. {variant.name}
+                      </h4>
+                      {variant.description && (
+                        <p className="text-sm text-gray-600 mt-1">{variant.description}</p>
+                      )}
+                      {!variant.stateImages && !variant.imageUrl && (
+                        <p className="text-xs text-gray-400 mt-1 italic">No image uploaded</p>
+                      )}
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h4 className="font-medium text-gray-900">
-                          {index + 1}. {variant.name}
-                        </h4>
-                        {variant.description && (
-                          <p className="text-sm text-gray-600 mt-1">{variant.description}</p>
-                        )}
-                        {!variant.imageUrl && (
-                          <p className="text-xs text-gray-400 mt-1 italic">No image uploaded</p>
-                        )}
-                      </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <button
                           onClick={() => handleEdit(variant)}
@@ -266,7 +256,23 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
                         </div>
                       </div>
                     </div>
-                  </div>
+
+                  {/* Display state images matrix or single image */}
+                  {variant.stateImages ? (
+                    <StateImageMatrix
+                      variantName={variant.name}
+                      stateImages={variant.stateImages}
+                    />
+                  ) : variant.imageUrl ? (
+                    <div className="mt-2">
+                      <ComponentImage
+                        src={variant.imageUrl}
+                        alt={variant.name}
+                        aspectRatio="16/9"
+                        className="border border-gray-300 rounded-md max-w-md"
+                      />
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>

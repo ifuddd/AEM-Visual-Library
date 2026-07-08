@@ -44,14 +44,29 @@ export interface LastUpdate {
 }
 
 /**
+ * State-specific images for a component variant
+ * Used to show different visual states (default, hover, focus, disabled)
+ */
+export interface ComponentVariantStateImages {
+  default?: string;
+  hover?: string;
+  focus?: string;
+  disabled?: string;
+  active?: string;
+}
+
+/**
  * Component variant
  */
 export interface ComponentVariant {
   id: string;
   name: string;
   description?: string;
-  imageUrl?: string;
+  imageUrl?: string;  // Single image (backward compatible)
   order: number;
+
+  // Optional state-specific images for design system documentation
+  stateImages?: ComponentVariantStateImages;
 }
 
 /**
