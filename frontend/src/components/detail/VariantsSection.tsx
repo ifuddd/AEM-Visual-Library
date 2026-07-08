@@ -1,9 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import type { ComponentVariant } from '@aem-portal/shared';
+import { useRef, useState } from 'react';
+import type { ComponentVariant, ComponentVariantStateImages } from '@aem-portal/shared';
 import { ComponentImage } from '@/components/common/ComponentImage';
 import { StateImageMatrix } from './StateImageMatrix';
+
+const STATE_KEYS: { key: keyof ComponentVariantStateImages; label: string }[] = [
+  { key: 'default', label: 'Default' },
+  { key: 'hover', label: 'Hover' },
+  { key: 'focus', label: 'Focus' },
+  { key: 'disabled', label: 'Disabled' },
+  { key: 'active', label: 'Active' },
+];
 
 interface VariantsSectionProps {
   variants: ComponentVariant[];
@@ -13,6 +21,8 @@ interface VariantsSectionProps {
 export function VariantsSection({ variants, setVariants }: VariantsSectionProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<ComponentVariant>>({});
+  const [useStateImages, setUseStateImages] = useState(false);
+  const stateFileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const handleAdd = () => {
     const newVariant: ComponentVariant = {
@@ -24,18 +34,26 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
     };
     setEditingId(newVariant.id);
     setEditForm(newVariant);
+    setUseStateImages(false);
     setVariants([...variants, newVariant]);
   };
 
   const handleEdit = (variant: ComponentVariant) => {
     setEditingId(variant.id);
     setEditForm(variant);
+    setUseStateImages(!!variant.stateImages);
   };
 
   const handleSave = () => {
     if (editingId && editForm.name) {
+      const merged: Partial<ComponentVariant> = { ...editForm };
+      if (useStateImages) {
+        merged.imageUrl = undefined;
+      } else {
+        merged.stateImages = undefined;
+      }
       const updatedVariants = variants.map((v) =>
-        v.id === editingId ? { ...v, ...editForm } : v
+        v.id === editingId ? { ...v, ...merged } : v
       );
       setVariants(updatedVariants);
       setEditingId(null);
@@ -73,20 +91,57 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
     setVariants(newVariants);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const readFileAsDataUrl = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // For now, use placeholder URL. In production, upload to cloud storage
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setEditForm({ ...editForm, imageUrl: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      const dataUrl = await readFileAsDataUrl(file);
+      setEditForm((prev) => ({ ...prev, imageUrl: dataUrl }));
     }
   };
 
   const handleRemoveImage = () => {
-    setEditForm({ ...editForm, imageUrl: '' });
+    setEditForm((prev) => ({ ...prev, imageUrl: '' }));
+  };
+
+  const handleStateImageUpload = async (
+    stateKey: keyof ComponentVariantStateImages,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const dataUrl = await readFileAsDataUrl(file);
+      setEditForm((prev) => ({
+        ...prev,
+        stateImages: { ...prev.stateImages, [stateKey]: dataUrl },
+      }));
+    }
+  };
+
+  const handleRemoveStateImage = (stateKey: keyof ComponentVariantStateImages) => {
+    setEditForm((prev) => {
+      const updated = { ...prev.stateImages };
+      delete updated[stateKey];
+      return { ...prev, stateImages: Object.keys(updated).length ? updated : undefined };
+    });
+    const ref = stateFileRefs.current[stateKey];
+    if (ref) ref.value = '';
+  };
+
+  const handleToggleStateImages = (on: boolean) => {
+    setUseStateImages(on);
+    if (on) {
+      setEditForm((prev) => ({ ...prev, imageUrl: undefined, stateImages: prev.stateImages ?? {} }));
+    } else {
+      setEditForm((prev) => ({ ...prev, stateImages: undefined }));
+    }
   };
 
   return (
@@ -142,42 +197,104 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Variant Image
-                    </label>
-                    {editForm.imageUrl ? (
-                      <div className="space-y-2">
-                        <div className="max-w-md">
-                          <ComponentImage
-                            src={editForm.imageUrl}
-                            alt="Variant preview"
-                            aspectRatio="16/9"
-                            className="border border-gray-300 rounded-md"
-                          />
-                        </div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Variant Image
+                      </label>
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className={!useStateImages ? 'font-medium text-gray-900' : 'text-gray-500'}>Single</span>
                         <button
-                          onClick={handleRemoveImage}
-                          className="text-sm text-red-600 hover:text-red-700"
+                          type="button"
+                          role="switch"
+                          aria-checked={useStateImages}
+                          onClick={() => handleToggleStateImages(!useStateImages)}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${useStateImages ? 'bg-primary-600' : 'bg-gray-300'}`}
                         >
-                          Remove Image
+                          <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${useStateImages ? 'translate-x-4' : 'translate-x-1'}`} />
                         </button>
+                        <span className={useStateImages ? 'font-medium text-gray-900' : 'text-gray-500'}>State matrix</span>
                       </div>
+                    </div>
+
+                    {!useStateImages ? (
+                      // Single image upload
+                      editForm.imageUrl ? (
+                        <div className="space-y-2">
+                          <div className="max-w-md">
+                            <ComponentImage
+                              src={editForm.imageUrl}
+                              alt="Variant preview"
+                              aspectRatio="16/9"
+                              className="border border-gray-300 rounded-md"
+                            />
+                          </div>
+                          <button
+                            onClick={handleRemoveImage}
+                            className="text-sm text-red-600 hover:text-red-700"
+                          >
+                            Remove Image
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="block w-full text-sm text-gray-500
+                              file:mr-4 file:py-2 file:px-4
+                              file:rounded-md file:border-0
+                              file:text-sm file:font-medium
+                              file:bg-primary-50 file:text-primary-700
+                              hover:file:bg-primary-100"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">Upload an image showing this variant</p>
+                        </div>
+                      )
                     ) : (
-                      <div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="block w-full text-sm text-gray-500
-                            file:mr-4 file:py-2 file:px-4
-                            file:rounded-md file:border-0
-                            file:text-sm file:font-medium
-                            file:bg-primary-50 file:text-primary-700
-                            hover:file:bg-primary-100"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Upload an image showing this variant
-                        </p>
+                      // State image matrix upload
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        {STATE_KEYS.map(({ key, label }) => {
+                          const url = editForm.stateImages?.[key];
+                          return (
+                            <div key={key} className="border border-gray-200 rounded-lg overflow-hidden">
+                              {url ? (
+                                <div className="relative">
+                                  <ComponentImage
+                                    src={url}
+                                    alt={label}
+                                    aspectRatio="16/9"
+                                    className="w-full"
+                                  />
+                                  <button
+                                    onClick={() => handleRemoveStateImage(key)}
+                                    className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-700 text-xs leading-none"
+                                    title={`Remove ${label}`}
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              ) : (
+                                <label className="flex flex-col items-center justify-center aspect-video cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                                  <svg className="w-6 h-6 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                  </svg>
+                                  <span className="text-xs text-gray-500">Upload</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    ref={(el) => { stateFileRefs.current[key] = el; }}
+                                    onChange={(e) => handleStateImageUpload(key, e)}
+                                  />
+                                </label>
+                              )}
+                              <div className="px-2 py-1 bg-gray-50 border-t border-gray-200">
+                                <p className="text-xs font-medium text-gray-700">{label}</p>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
