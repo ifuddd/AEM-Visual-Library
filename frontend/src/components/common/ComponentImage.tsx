@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ComponentImageProps {
   src: string | null;
@@ -19,6 +19,11 @@ export function ComponentImage({
   fallbackIcon,
 }: ComponentImageProps) {
   const [error, setError] = useState(false);
+
+  // Reset error when src changes so a newly uploaded image always tries to load
+  useEffect(() => {
+    setError(false);
+  }, [src]);
 
   // Determine if src is base64 data URL
   const isBase64 = src?.startsWith('data:');

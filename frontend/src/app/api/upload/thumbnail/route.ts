@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
-import { existsSync } from 'fs';
 
 const ALLOWED_EXTS: Record<string, string> = {
   jpeg: 'jpg',
@@ -39,15 +38,11 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(base64Data, 'base64');
 
     const filename = `thumbnail-${Date.now()}.${ext}`;
-    const uploadsDir = join(process.cwd(), 'public', 'uploads');
-
-    if (!existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true });
-    }
-
+    const uploadsDir = join(process.cwd(), 'public', 'uploads', 'thumbnails');
+    await mkdir(uploadsDir, { recursive: true });
     await writeFile(join(uploadsDir, filename), buffer);
 
-    return NextResponse.json({ url: `/uploads/${filename}` });
+    return NextResponse.json({ url: `/uploads/thumbnails/${filename}` });
   } catch (error) {
     console.error('Thumbnail upload error:', error);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
