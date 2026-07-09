@@ -3,7 +3,6 @@
 import { LimitationsEditor } from './LimitationsEditor';
 import { VariantsSection } from './VariantsSection';
 import { ComponentPropertiesTable } from './ComponentPropertiesTable';
-import { InteractionStatesMatrix } from './InteractionStatesMatrix';
 import type { ComponentVariant, AEMMetadata } from '@aem-portal/shared';
 
 interface UsageGuideTabProps {
@@ -36,29 +35,12 @@ export function UsageGuideTab({
 
       <hr className="border-gray-100" />
 
-      {/* Interaction States */}
+      {/* Component Variants */}
       <section>
         <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-          Interaction States
-        </h3>
-        {variants.length > 0 ? (
-          <InteractionStatesMatrix variants={variants} />
-        ) : (
-          <p className="text-sm text-gray-400 text-center py-8">No variants defined. Add variants in the Overview tab.</p>
-        )}
-      </section>
-
-      <hr className="border-gray-100" />
-
-      {/* Available Styling Options */}
-      <section>
-        <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-          Available Styling Options
+          Component Variants
         </h3>
         <VariantsSection variants={variants} setVariants={setVariants} />
-        <p className="text-xs text-gray-400 mt-4">
-          Upload images and add descriptions for each styling variant. These help authors understand the visual differences.
-        </p>
       </section>
 
       <hr className="border-gray-100" />
