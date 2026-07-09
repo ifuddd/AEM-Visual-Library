@@ -401,8 +401,6 @@ export default function ComponentDetailPage({
           setAzureDevOpsWorkItem={setAzureDevOpsWorkItem}
           limitations={limitations}
           setLimitations={setLimitations}
-          dialogSchema={dialogSchema}
-          setDialogSchema={setDialogSchema}
         />
       </main>
 
