@@ -395,10 +395,8 @@ export default function ComponentDetailPage({
           setVariants={setVariants}
           figmaLink={figmaLink}
           setFigmaLink={setFigmaLink}
-          designSpecsNotes={designSpecsNotes}
-          setDesignSpecsNotes={setDesignSpecsNotes}
-          authoringNotes={authoringNotes}
-          setAuthoringNotes={setAuthoringNotes}
+          dialogSchema={dialogSchema}
+          setDialogSchema={setDialogSchema}
           azureDevOpsWorkItem={azureDevOpsWorkItem}
           setAzureDevOpsWorkItem={setAzureDevOpsWorkItem}
           limitations={limitations}

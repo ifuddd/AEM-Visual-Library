@@ -19,16 +19,14 @@ interface ComponentTabsProps {
   // Design specs tab
   figmaLink: string;
   setFigmaLink: (value: string) => void;
-  designSpecsNotes: string;
-  setDesignSpecsNotes: (value: string) => void;
 
-  // Usage guide tab
-  authoringNotes: string;
-  setAuthoringNotes: (value: string) => void;
-  limitations: string[];
-  setLimitations: (value: string[]) => void;
+  // Shared between design specs + usage guide
   dialogSchema: Record<string, any>;
   setDialogSchema: (value: Record<string, any>) => void;
+
+  // Usage guide tab
+  limitations: string[];
+  setLimitations: (value: string[]) => void;
 
   // Metadata
   azureDevOpsWorkItem: string;
@@ -49,16 +47,12 @@ export function ComponentTabs({
   setVariants,
   figmaLink,
   setFigmaLink,
-  designSpecsNotes,
-  setDesignSpecsNotes,
-  authoringNotes,
-  setAuthoringNotes,
+  dialogSchema,
+  setDialogSchema,
   azureDevOpsWorkItem,
   setAzureDevOpsWorkItem,
   limitations,
   setLimitations,
-  dialogSchema,
-  setDialogSchema,
 }: ComponentTabsProps) {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -101,14 +95,13 @@ export function ComponentTabs({
           <DesignSpecsTab
             figmaLink={figmaLink}
             setFigmaLink={setFigmaLink}
-            designSpecsNotes={designSpecsNotes}
-            setDesignSpecsNotes={setDesignSpecsNotes}
+            dialogSchema={dialogSchema}
+            setDialogSchema={setDialogSchema}
+            variants={variants}
           />
         )}
         {activeTab === 'usage-guide' && (
           <UsageGuideTab
-            authoringNotes={authoringNotes}
-            setAuthoringNotes={setAuthoringNotes}
             variants={variants}
             setVariants={setVariants}
             aemMetadata={component.aemMetadata}

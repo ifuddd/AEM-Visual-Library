@@ -63,7 +63,6 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
 
   const handleCancel = () => {
     if (editForm.name === '') {
-      // Remove empty variant
       setVariants(variants.filter((v) => v.id !== editingId));
     }
     setEditingId(null);
@@ -82,12 +81,9 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
   const handleMove = (index: number, direction: 'up' | 'down') => {
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= variants.length) return;
-
     const newVariants = [...variants];
     [newVariants[index], newVariants[newIndex]] = [newVariants[newIndex], newVariants[index]];
-    newVariants.forEach((v, i) => {
-      v.order = i;
-    });
+    newVariants.forEach((v, i) => { v.order = i; });
     setVariants(newVariants);
   };
 
@@ -197,9 +193,7 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Description
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                     <textarea
                       value={editForm.description || ''}
                       onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
@@ -211,9 +205,7 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
 
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Variant Image
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700">Variant Image</label>
                       <div className="flex items-center gap-2 text-sm">
                         <span className={!useStateImages ? 'font-medium text-gray-900' : 'text-gray-500'}>Single</span>
                         <button
@@ -230,7 +222,6 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
                     </div>
 
                     {!useStateImages ? (
-                      // Single image upload
                       editForm.imageUrl ? (
                         <div className="space-y-2">
                           <div className="max-w-md">
@@ -241,10 +232,7 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
                               className="border border-gray-300 rounded-md"
                             />
                           </div>
-                          <button
-                            onClick={handleRemoveImage}
-                            className="text-sm text-red-600 hover:text-red-700"
-                          >
+                          <button onClick={handleRemoveImage} className="text-sm text-red-600 hover:text-red-700">
                             Remove Image
                           </button>
                         </div>
@@ -254,18 +242,12 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
                             type="file"
                             accept="image/*"
                             onChange={handleImageUpload}
-                            className="block w-full text-sm text-gray-500
-                              file:mr-4 file:py-2 file:px-4
-                              file:rounded-md file:border-0
-                              file:text-sm file:font-medium
-                              file:bg-primary-50 file:text-primary-700
-                              hover:file:bg-primary-100"
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
                           />
                           <p className="text-xs text-gray-500 mt-1">Upload an image showing this variant</p>
                         </div>
                       )
                     ) : (
-                      // State image matrix upload
                       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                         {STATE_KEYS.map(({ key, label }) => {
                           const url = editForm.stateImages?.[key];
@@ -273,19 +255,13 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
                             <div key={key} className="border border-gray-200 rounded-lg overflow-hidden">
                               {url ? (
                                 <div className="relative">
-                                  <ComponentImage
-                                    src={url}
-                                    alt={label}
-                                    aspectRatio="16/9"
-                                    className="w-full"
-                                  />
+                                  <ComponentImage src={url} alt={label} aspectRatio="16/9" className="w-full" />
                                   <button
                                     onClick={() => handleRemoveStateImage(key)}
-                                    className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-700 text-xs leading-none"
-                                    title={`Remove ${label}`}
+                                    className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-700 text-xs"
                                     aria-label={`Remove ${label} state image`}
                                   >
-                                    <span aria-hidden="true">×</span>
+                                    ×
                                   </button>
                                 </div>
                               ) : (
@@ -334,9 +310,7 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
                 <div className="flex flex-col gap-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">
-                        {index + 1}. {variant.name}
-                      </h4>
+                      <h4 className="font-medium text-gray-900">{index + 1}. {variant.name}</h4>
                       {variant.description && (
                         <p className="text-sm text-gray-600 mt-1">{variant.description}</p>
                       )}
@@ -344,67 +318,61 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
                         <p className="text-xs text-gray-400 mt-1 italic">No image uploaded</p>
                       )}
                     </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        onClick={() => handleEdit(variant)}
+                        className="p-1 text-gray-600 hover:text-primary-600"
+                        title="Edit"
+                        aria-label={`Edit ${variant.name} variant`}
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => handleDelete(variant.id)}
+                        className="p-1 text-gray-600 hover:text-red-600"
+                        title="Delete"
+                        aria-label={`Delete ${variant.name} variant`}
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                      <div className="flex flex-col gap-1 ml-2">
                         <button
-                          onClick={() => handleEdit(variant)}
-                          className="p-1 text-gray-600 hover:text-primary-600"
-                          title="Edit"
-                          aria-label={`Edit ${variant.name} variant`}
+                          onClick={() => handleMove(index, 'up')}
+                          disabled={index === 0}
+                          className="p-1 text-gray-600 hover:text-primary-600 disabled:opacity-30"
+                          title="Move up"
                         >
-                          <svg className="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                           </svg>
                         </button>
                         <button
-                          onClick={() => handleDelete(variant.id)}
-                          className="p-1 text-gray-600 hover:text-red-600"
-                          title="Delete"
-                          aria-label={`Delete ${variant.name} variant`}
+                          onClick={() => handleMove(index, 'down')}
+                          disabled={index === variants.length - 1}
+                          className="p-1 text-gray-600 hover:text-primary-600 disabled:opacity-30"
+                          title="Move down"
                         >
-                          <svg className="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                           </svg>
                         </button>
-                        <div className="flex flex-col gap-1 ml-2">
-                          <button
-                            onClick={() => handleMove(index, 'up')}
-                            disabled={index === 0}
-                            className="p-1 text-gray-600 hover:text-primary-600 disabled:opacity-30"
-                            title="Move up"
-                            aria-label={`Move ${variant.name} up`}
-                          >
-                            <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleMove(index, 'down')}
-                            disabled={index === variants.length - 1}
-                            className="p-1 text-gray-600 hover:text-primary-600 disabled:opacity-30"
-                            title="Move down"
-                            aria-label={`Move ${variant.name} down`}
-                          >
-                            <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
-                          </button>
-                        </div>
                       </div>
                     </div>
+                  </div>
 
-                  {/* Display state images matrix or single image */}
+                  {/* Display state images matrix or single thumbnail (320×180) */}
                   {variant.stateImages ? (
-                    <StateImageMatrix
-                      variantName={variant.name}
-                      stateImages={variant.stateImages}
-                    />
+                    <StateImageMatrix variantName={variant.name} stateImages={variant.stateImages} />
                   ) : variant.imageUrl ? (
-                    <div className="mt-2">
-                      <ComponentImage
+                    <div className="flex-shrink-0" style={{ width: '320px', height: '180px' }}>
+                      <img
                         src={variant.imageUrl}
                         alt={variant.name}
-                        aspectRatio="16/9"
-                        className="border border-gray-300 rounded-md max-w-md"
+                        className="w-full h-full object-cover border border-gray-300 rounded-md"
                       />
                     </div>
                   ) : null}

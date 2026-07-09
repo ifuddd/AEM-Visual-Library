@@ -62,11 +62,9 @@ export interface ComponentVariant {
   id: string;
   name: string;
   description?: string;
-  imageUrl?: string;  // Single image (backward compatible)
-  order: number;
-
-  // Optional state-specific images for design system documentation
+  imageUrl?: string;
   stateImages?: ComponentVariantStateImages;
+  order: number;
 }
 
 /**
