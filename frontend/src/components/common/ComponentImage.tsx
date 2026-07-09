@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { useState, useEffect } from 'react';
 
 interface ComponentImageProps {
@@ -78,13 +77,14 @@ export function ComponentImage({
     );
   }
 
+  // Use regular img for all URL-based images to avoid Next.js Image proxy issues
+  // (/_next/image makes server-side fetches, which fails for localhost/relative URLs on prod)
   return (
     <div className={`${aspectClasses[aspectRatio]} relative overflow-hidden ${className}`}>
-      <Image
+      <img
         src={src}
         alt={alt}
-        fill
-        className="object-cover"
+        className="w-full h-full object-cover"
         onError={() => setError(true)}
       />
     </div>
