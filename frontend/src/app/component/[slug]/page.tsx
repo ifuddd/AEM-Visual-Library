@@ -171,26 +171,11 @@ export default function ComponentDetailPage({
 
     setSaveStatus('saving');
 
-    let finalThumbnailUrl = thumbnailUrl;
-
-    // Upload thumbnail if there's a new one (base64)
-    if (thumbnailBase64) {
-      try {
-        const uploadResponse = await fetch('/api/upload/thumbnail', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: thumbnailBase64 }),
-        });
-
-        if (uploadResponse.ok) {
-          const { url } = await uploadResponse.json();
-          finalThumbnailUrl = url;
-        }
-      } catch (error) {
-        console.error('Thumbnail upload failed:', error);
-        // Continue with save even if upload fails
-      }
-    }
+    // Use base64 directly as the thumbnail URL — avoids server filesystem writes
+    // which fail on Vercel's read-only serverless environment.
+    // When real persistent storage (Vercel Blob, S3, etc.) is wired up,
+    // swap this for an actual upload call.
+    const finalThumbnailUrl = thumbnailBase64 || thumbnailUrl;
 
     const updateData: any = {
       title,
