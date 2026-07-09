@@ -2,9 +2,8 @@
  * Component status in the lifecycle
  */
 export enum ComponentStatus {
-  STABLE = 'stable',
-  EXPERIMENTAL = 'experimental',
-  DEPRECATED = 'deprecated',
+  READY = 'ready',
+  IN_REVIEW = 'in_review',
 }
 
 /**
@@ -45,6 +44,32 @@ export interface LastUpdate {
 }
 
 /**
+ * State-specific images for a component variant
+ * Used to show different visual states (default, hover, focus, disabled)
+ */
+export interface ComponentVariantStateImages {
+  default?: string;
+  hover?: string;
+  focus?: string;
+  disabled?: string;
+  active?: string;
+}
+
+/**
+ * Component variant
+ */
+export interface ComponentVariant {
+  id: string;
+  name: string;
+  description?: string;
+  imageUrl?: string;  // Single image (backward compatible)
+  order: number;
+
+  // Optional state-specific images for design system documentation
+  stateImages?: ComponentVariantStateImages;
+}
+
+/**
  * Main Component entity
  */
 export interface Component {
@@ -56,10 +81,20 @@ export interface Component {
   status: ComponentStatus;
   ownerEmail?: string;
   ownerTeam?: string;
+
+  // Editing capabilities
+  variants?: ComponentVariant[];
+  authoringNotes?: string;
+  designSpecsNotes?: string;
+  azureDevOpsWorkItem?: string;
+  figmaLink?: string;
+
+  // Legacy fields (deprecated - will be removed)
   repoLink?: string;
   azureWikiPath?: string;
   azureWikiUrl?: string;
   figmaLinks?: string[];
+
   aemMetadata?: AEMMetadata;
   visualAssets?: VisualAssets;
   lastUpdate?: LastUpdate;

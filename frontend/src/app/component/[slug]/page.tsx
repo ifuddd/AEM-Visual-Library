@@ -1,29 +1,205 @@
 'use client';
 
-import { use } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { componentApi } from '@/lib/api';
 import { ComponentTabs } from '@/components/detail/ComponentTabs';
 import { ComponentStatus } from '@aem-portal/shared';
+import type { Component } from '@aem-portal/shared';
+import { isValidFigmaUrl } from '@/lib/figmaUtils';
 import Link from 'next/link';
+import { LottieAnimation } from '@/components/LottieAnimation';
 
 const statusColors = {
-  [ComponentStatus.STABLE]: 'bg-green-100 text-green-800',
-  [ComponentStatus.EXPERIMENTAL]: 'bg-yellow-100 text-yellow-800',
-  [ComponentStatus.DEPRECATED]: 'bg-red-100 text-red-800',
+  [ComponentStatus.READY]: 'bg-emerald-100 text-emerald-800',
+  [ComponentStatus.IN_REVIEW]: 'bg-amber-100 text-amber-800',
 };
 
 export default function ComponentDetailPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = use(params);
+  const { slug } = params;
+  const queryClient = useQueryClient();
 
   const { data: component, isLoading, error } = useQuery({
     queryKey: ['component', slug],
     queryFn: () => componentApi.getBySlug(slug),
   });
+
+  // Editable state
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [status, setStatus] = useState<ComponentStatus>(ComponentStatus.READY);
+  const [figmaLink, setFigmaLink] = useState('');
+  const [authoringNotes, setAuthoringNotes] = useState('');
+  const [designSpecsNotes, setDesignSpecsNotes] = useState('');
+  const [variants, setVariants] = useState<any[]>([]);
+  const [azureDevOpsWorkItem, setAzureDevOpsWorkItem] = useState('');
+  const [limitations, setLimitations] = useState<string[]>([]);
+  const [dialogSchema, setDialogSchema] = useState<Record<string, any>>({});
+
+  // Thumbnail state
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [thumbnailBase64, setThumbnailBase64] = useState<string | null>(null);
+
+  // Save state
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Initialize editable fields when component loads
+  useEffect(() => {
+    if (component) {
+      setTitle(component.title);
+      setDescription(component.description);
+      setStatus(component.status);
+      setFigmaLink(component.figmaLink || '');
+      setAuthoringNotes(component.authoringNotes || '');
+      setDesignSpecsNotes(component.designSpecsNotes || '');
+      setVariants(component.variants || []);
+      setAzureDevOpsWorkItem(component.azureDevOpsWorkItem || '');
+      setLimitations(component.aemMetadata?.limitations || []);
+      setDialogSchema(component.aemMetadata?.dialogSchema || {});
+      setThumbnailUrl(component.visualAssets?.thumbnailUrl || null);
+    }
+  }, [component]);
+
+  // Track unsaved changes
+  useEffect(() => {
+    if (!component) return;
+
+    const hasChanges =
+      title !== component.title ||
+      description !== component.description ||
+      status !== component.status ||
+      figmaLink !== (component.figmaLink || '') ||
+      authoringNotes !== (component.authoringNotes || '') ||
+      designSpecsNotes !== (component.designSpecsNotes || '') ||
+      thumbnailBase64 !== null ||
+      JSON.stringify(variants) !== JSON.stringify(component.variants || []) ||
+      azureDevOpsWorkItem !== (component.azureDevOpsWorkItem || '') ||
+      JSON.stringify(limitations) !== JSON.stringify(component.aemMetadata?.limitations || []) ||
+      JSON.stringify(dialogSchema) !== JSON.stringify(component.aemMetadata?.dialogSchema || {});
+
+    setHasUnsavedChanges(hasChanges);
+  }, [
+    title,
+    description,
+    status,
+    figmaLink,
+    authoringNotes,
+    designSpecsNotes,
+    thumbnailBase64,
+    variants,
+    azureDevOpsWorkItem,
+    limitations,
+    dialogSchema,
+    component,
+  ]);
+
+  // Beforeunload warning for unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  // Update mutation
+  const updateMutation = useMutation({
+    mutationFn: (data: Partial<Component>) =>
+      fetch(`/api/components/slug/${slug}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      }).then((res) => {
+        if (!res.ok) throw new Error('Update failed');
+        return res.json();
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['component', slug] });
+      setSaveStatus('saved');
+      setThumbnailBase64(null);
+      setHasUnsavedChanges(false);
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    },
+    onError: () => {
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    },
+  });
+
+  // Validation before save
+  const validateBeforeSave = () => {
+    const errors: string[] = [];
+
+    if (!title || title.trim().length < 3) {
+      errors.push('Title must be at least 3 characters');
+    }
+
+    if (!description || description.trim().length < 10) {
+      errors.push('Description must be at least 10 characters');
+    }
+
+    if (figmaLink && !isValidFigmaUrl(figmaLink)) {
+      errors.push('Invalid Figma URL');
+    }
+
+    for (const variant of variants) {
+      if (!variant.name || variant.name.trim().length === 0) {
+        errors.push('All variants must have a name');
+      }
+    }
+
+    if (errors.length > 0) {
+      alert(errors.join('\n'));
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSave = async () => {
+    // Validate first
+    if (!validateBeforeSave()) return;
+
+    setSaveStatus('saving');
+
+    // Use base64 directly as the thumbnail URL — avoids server filesystem writes
+    // which fail on Vercel's read-only serverless environment.
+    // When real persistent storage (Vercel Blob, S3, etc.) is wired up,
+    // swap this for an actual upload call.
+    const finalThumbnailUrl = thumbnailBase64 || thumbnailUrl;
+
+    const updateData: any = {
+      title,
+      description,
+      status,
+      figmaLink,
+      authoringNotes,
+      designSpecsNotes,
+      variants,
+      azureDevOpsWorkItem,
+      aemMetadata: {
+        ...(component?.aemMetadata || {}),
+        limitations,
+        dialogSchema,
+      },
+      ...(finalThumbnailUrl && {
+        visualAssets: {
+          thumbnailUrl: finalThumbnailUrl,
+        },
+      }),
+    };
+
+    updateMutation.mutate(updateData);
+  };
 
   if (isLoading) {
     return (
@@ -82,84 +258,168 @@ export default function ComponentDetailPage({
             Back to catalog
           </Link>
 
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold text-gray-900">
-                  {component.title}
-                </h1>
-                <span
-                  className={`px-3 py-1 text-sm font-medium rounded ${
-                    statusColors[component.status]
-                  }`}
-                >
-                  {component.status}
-                </span>
-              </div>
-              <p className="text-gray-600 mb-4">{component.description}</p>
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex-1">
+              {/* Editable Title */}
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="text-3xl font-bold text-gray-900 bg-transparent border-b-2 border-transparent hover:border-gray-300 focus:border-primary-500 focus:outline-none w-full mb-2 px-2 -ml-2"
+                placeholder="Component title..."
+              />
 
-              {/* Metadata */}
-              <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                {component.ownerTeam && (
-                  <div className="flex items-center gap-1">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                      />
-                    </svg>
-                    {component.ownerTeam}
-                  </div>
-                )}
-                {component.lastUpdate && (
-                  <div className="flex items-center gap-1">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    Updated {new Date(component.lastUpdate.date).toLocaleDateString()}
-                  </div>
-                )}
-              </div>
-
-              {/* Tags */}
-              {component.tags && component.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {component.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {/* Editable Description */}
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={2}
+                className="text-gray-600 bg-transparent border-b-2 border-transparent hover:border-gray-300 focus:border-primary-500 focus:outline-none w-full resize-none px-2 -ml-2"
+                placeholder="Component description..."
+              />
             </div>
+
+            <div className="flex items-center gap-3">
+              {/* Status Dropdown */}
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value as ComponentStatus)}
+                className={`px-3 py-1 text-sm font-medium rounded cursor-pointer border-2 border-transparent hover:border-gray-300 focus:outline-none focus:border-primary-500 ${
+                  statusColors[status]
+                }`}
+              >
+                <option value={ComponentStatus.READY}>Ready</option>
+                <option value={ComponentStatus.IN_REVIEW}>In Review</option>
+              </select>
+
+              {/* Save Button */}
+              <button
+                onClick={handleSave}
+                disabled={saveStatus === 'saving' || !hasUnsavedChanges}
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  hasUnsavedChanges
+                    ? saveStatus === 'saving'
+                      ? 'bg-primary-600 text-white opacity-75'
+                      : 'bg-primary-600 text-white hover:bg-primary-700'
+                    : saveStatus === 'saved'
+                    ? 'bg-green-600 text-white'
+                    : saveStatus === 'error'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                {saveStatus === 'saving' && 'Saving...'}
+                {saveStatus === 'saved' && (
+                  <span className="flex items-center gap-1">
+                    <LottieAnimation
+                      animationPath="/animations/success.json"
+                      size="small"
+                      loop={false}
+                      autoplay={true}
+                    />
+                    Saved
+                  </span>
+                )}
+                {saveStatus === 'error' && (
+                  <span className="flex items-center gap-1">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Error
+                  </span>
+                )}
+                {saveStatus === 'idle' && (hasUnsavedChanges ? 'Save Changes' : 'No Changes')}
+              </button>
+            </div>
+          </div>
+
+          {/* Metadata */}
+          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+            {component.aemMetadata?.componentPath && (
+              <div className="flex items-center gap-1">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                  />
+                </svg>
+                <span className="text-gray-500">AEM:</span>
+                <code className="text-xs bg-gray-100 px-2 py-0.5 rounded font-mono">
+                  {component.aemMetadata.componentPath.split('/').pop()}
+                </code>
+              </div>
+            )}
+            {component.updatedAt && (
+              <div className="flex items-center gap-1">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Updated {new Date(component.updatedAt).toLocaleDateString()}
+              </div>
+            )}
           </div>
         </div>
       </header>
 
       {/* Component detail tabs */}
       <main className="container mx-auto px-4 py-8">
-        <ComponentTabs component={component} />
+        <ComponentTabs
+          component={component}
+          thumbnailUrl={thumbnailBase64 || thumbnailUrl}
+          setThumbnailUrl={(url) => {
+            if (url?.startsWith('data:')) {
+              setThumbnailBase64(url);
+            } else {
+              setThumbnailUrl(url);
+              setThumbnailBase64(null);
+            }
+          }}
+          variants={variants}
+          setVariants={setVariants}
+          figmaLink={figmaLink}
+          setFigmaLink={setFigmaLink}
+          designSpecsNotes={designSpecsNotes}
+          setDesignSpecsNotes={setDesignSpecsNotes}
+          authoringNotes={authoringNotes}
+          setAuthoringNotes={setAuthoringNotes}
+          azureDevOpsWorkItem={azureDevOpsWorkItem}
+          setAzureDevOpsWorkItem={setAzureDevOpsWorkItem}
+          limitations={limitations}
+          setLimitations={setLimitations}
+          dialogSchema={dialogSchema}
+          setDialogSchema={setDialogSchema}
+        />
       </main>
+
+      {/* Metadata Footer */}
+      <footer className="container mx-auto px-4 py-8">
+        <div className="border-t border-gray-200 pt-4 flex justify-between items-center text-xs text-gray-500">
+          <div>
+            Created: {new Date(component.createdAt).toLocaleDateString()}
+          </div>
+          <div>
+            Last modified: {new Date(component.updatedAt).toLocaleDateString()}
+            {component.lastUpdate?.author && ` by ${component.lastUpdate.author}`}
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

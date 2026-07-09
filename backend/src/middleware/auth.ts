@@ -3,10 +3,9 @@ import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
 import { ApiError, UserRole, AzureAdTokenPayload } from '@aem-portal/shared';
 import { config } from '../config';
-import prisma from '../db/prisma';
+// Removed Prisma import for prototype mode (no database)
+// import prisma from '../db/prisma';
 import logger from '../utils/logger';
-
-
 
 // Extend Express Request to include user
 declare global {
@@ -42,6 +41,12 @@ function getKey(header: any, callback: any) {
 
 /**
  * Middleware to verify Azure AD JWT token
+ *
+ * ⚠️ DEVELOPMENT MODE: When NODE_ENV=development and no Azure AD config,
+ * this middleware bypasses authentication and uses a mock admin user.
+ *
+ * 🚨 IMPORTANT: Configure Azure AD before deploying to production!
+ * See DEPLOYMENT_NOTES.md for setup instructions.
  */
 export const authenticate = async (
   req: Request,
@@ -49,20 +54,29 @@ export const authenticate = async (
   next: NextFunction
 ) => {
   try {
-    // ✅ DEV MODE AUTH BYPASS
-    if (
-      process.env.NODE_ENV === 'development' &&
-      process.env.AUTH_BYPASS === 'true'
-    ) {
-      req.user = {
-        azureAdOid: 'dev-user',
-        email: 'dev@local',
-        displayName: 'Developer',
-        role: UserRole.VIEWER,
+    // DEVELOPMENT MODE: Bypass Azure AD if not configured
+    const isDevelopment = config.nodeEnv === 'development';
+    const hasAzureAdConfig = config.azureAd.tenantId && config.azureAd.clientId;
+
+    if (isDevelopment && !hasAzureAdConfig) {
+      logger.warn('⚠️  Prototype mode: Using mock authentication (no database)');
+      logger.warn('🚨 Configure Azure AD and database before deploying to production!');
+
+      // Use mock development admin user (no database needed for prototype)
+      const mockUser = {
+        azureAdOid: 'dev-local-oid-00000000-0000-0000-0000-000000000000',
+        email: 'dev@localhost',
+        displayName: 'Development Admin',
+        role: UserRole.ADMIN,
       };
+
+      // Attach mock user to request
+      req.user = mockUser;
+
       return next();
     }
 
+    // PRODUCTION MODE: Require Azure AD authentication
     // Extract token from Authorization header
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -91,44 +105,23 @@ export const authenticate = async (
       );
     });
 
-    // (rest of your existing code continues...)
-
-
     // Get or create user in database
     const email = decoded.email || decoded.preferred_username || '';
     const displayName = decoded.name || email;
 
-    let user = await prisma.user.findUnique({
-      where: { azureAdOid: decoded.oid },
-    });
-
-    if (!user) {
-      // Create new user with default VIEWER role
-      user = await prisma.user.create({
-        data: {
-          azureAdOid: decoded.oid,
-          email,
-          displayName,
-          role: 'VIEWER',
-          lastLoginAt: new Date(),
-        },
-      });
-      logger.info(`New user created: ${email}`);
-    } else {
-      // Update last login
-      await prisma.user.update({
-        where: { azureAdOid: decoded.oid },
-        data: { lastLoginAt: new Date() },
-      });
-    }
-
-    // Attach user to request
-    req.user = {
-      azureAdOid: user.azureAdOid,
-      email: user.email,
-      displayName: user.displayName,
-      role: user.role as UserRole,
+    // PROTOTYPE MODE: Using mock user (Prisma removed)
+    // In production, this would query and create users in database
+    const user = {
+      azureAdOid: decoded.oid,
+      email,
+      displayName,
+      role: UserRole.VIEWER,
     };
+
+    logger.info(`Mock user authenticated: ${email}`);
+
+    // Attach mock user to request
+    req.user = user;
 
     next();
   } catch (error) {

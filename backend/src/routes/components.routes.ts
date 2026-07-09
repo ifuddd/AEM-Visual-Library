@@ -3,7 +3,8 @@ import Joi from 'joi';
 import { ComponentStatus, UserRole } from '@aem-portal/shared';
 import { validate } from '../middleware/validation';
 import { authenticate, authorize } from '../middleware/auth';
-import componentService from '../services/component.service';
+// Using mock service for prototype (no database)
+import componentService from '../services/component.service.mock';
 
 const router = Router();
 

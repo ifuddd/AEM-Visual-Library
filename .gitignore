@@ -12,6 +12,7 @@ coverage/
 out/
 build/
 dist/
+next-env.d.ts
 
 # Production
 *.log
@@ -49,3 +50,6 @@ sync-service/.azurite/
 # Misc
 *.tsbuildinfo
 .turbo/
+
+# Uploaded files
+frontend/public/uploads/

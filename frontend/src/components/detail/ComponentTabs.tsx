@@ -1,27 +1,66 @@
 'use client';
 
 import { useState } from 'react';
-import type { Component } from '@aem-portal/shared';
-import { PreviewTab } from './PreviewTab';
-import { DesignerTab } from './DesignerTab';
-import { AuthoringTab } from './AuthoringTab';
-import { ImplementationTab } from './ImplementationTab';
-import { HistoryTab } from './HistoryTab';
+import type { Component, ComponentVariant } from '@aem-portal/shared';
+import { OverviewTab } from './OverviewTab';
+import { DesignSpecsTab } from './DesignSpecsTab';
+import { UsageGuideTab } from './UsageGuideTab';
+import { DocumentTextIcon, SwatchIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 
 interface ComponentTabsProps {
   component: Component;
+
+  // Overview tab
+  thumbnailUrl: string | null;
+  setThumbnailUrl: (value: string | null) => void;
+  variants: ComponentVariant[];
+  setVariants: (value: ComponentVariant[]) => void;
+
+  // Design specs tab
+  figmaLink: string;
+  setFigmaLink: (value: string) => void;
+  designSpecsNotes: string;
+  setDesignSpecsNotes: (value: string) => void;
+
+  // Usage guide tab
+  authoringNotes: string;
+  setAuthoringNotes: (value: string) => void;
+  limitations: string[];
+  setLimitations: (value: string[]) => void;
+  dialogSchema: Record<string, any>;
+  setDialogSchema: (value: Record<string, any>) => void;
+
+  // Metadata
+  azureDevOpsWorkItem: string;
+  setAzureDevOpsWorkItem: (value: string) => void;
 }
 
 const tabs = [
-  { id: 'preview', label: 'Preview', icon: '👁️' },
-  { id: 'designer', label: 'Designer', icon: '🎨' },
-  { id: 'authoring', label: 'Authoring', icon: '✏️' },
-  { id: 'implementation', label: 'Implementation', icon: '💻' },
-  { id: 'history', label: 'History', icon: '📜' },
+  { id: 'overview', label: 'Overview', Icon: DocumentTextIcon },
+  { id: 'design-specs', label: 'Design specs', Icon: SwatchIcon },
+  { id: 'usage-guide', label: 'Usage guide', Icon: BookOpenIcon },
 ];
 
-export function ComponentTabs({ component }: ComponentTabsProps) {
-  const [activeTab, setActiveTab] = useState('preview');
+export function ComponentTabs({
+  component,
+  thumbnailUrl,
+  setThumbnailUrl,
+  variants,
+  setVariants,
+  figmaLink,
+  setFigmaLink,
+  designSpecsNotes,
+  setDesignSpecsNotes,
+  authoringNotes,
+  setAuthoringNotes,
+  azureDevOpsWorkItem,
+  setAzureDevOpsWorkItem,
+  limitations,
+  setLimitations,
+  dialogSchema,
+  setDialogSchema,
+}: ComponentTabsProps) {
+  const [activeTab, setActiveTab] = useState('overview');
 
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -32,13 +71,13 @@ export function ComponentTabs({ component }: ComponentTabsProps) {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex items-center px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === tab.id
                   ? 'border-primary-600 text-primary-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
               }`}
             >
-              <span className="mr-2">{tab.icon}</span>
+              <tab.Icon className="w-5 h-5 mr-2" />
               {tab.label}
             </button>
           ))}
@@ -47,11 +86,38 @@ export function ComponentTabs({ component }: ComponentTabsProps) {
 
       {/* Tab content */}
       <div className="p-6">
-        {activeTab === 'preview' && <PreviewTab component={component} />}
-        {activeTab === 'designer' && <DesignerTab component={component} />}
-        {activeTab === 'authoring' && <AuthoringTab component={component} />}
-        {activeTab === 'implementation' && <ImplementationTab component={component} />}
-        {activeTab === 'history' && <HistoryTab component={component} />}
+        {activeTab === 'overview' && (
+          <OverviewTab
+            description={component.description}
+            thumbnailUrl={thumbnailUrl}
+            onThumbnailChange={setThumbnailUrl}
+            variants={variants}
+            setVariants={setVariants}
+            azureDevOpsWorkItem={azureDevOpsWorkItem}
+            setAzureDevOpsWorkItem={setAzureDevOpsWorkItem}
+          />
+        )}
+        {activeTab === 'design-specs' && (
+          <DesignSpecsTab
+            figmaLink={figmaLink}
+            setFigmaLink={setFigmaLink}
+            designSpecsNotes={designSpecsNotes}
+            setDesignSpecsNotes={setDesignSpecsNotes}
+          />
+        )}
+        {activeTab === 'usage-guide' && (
+          <UsageGuideTab
+            authoringNotes={authoringNotes}
+            setAuthoringNotes={setAuthoringNotes}
+            variants={variants}
+            setVariants={setVariants}
+            aemMetadata={component.aemMetadata}
+            limitations={limitations}
+            setLimitations={setLimitations}
+            dialogSchema={dialogSchema}
+            setDialogSchema={setDialogSchema}
+          />
+        )}
       </div>
     </div>
   );
