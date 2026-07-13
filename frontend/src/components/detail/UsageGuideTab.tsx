@@ -41,12 +41,9 @@ export function UsageGuideTab({
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <div className="flex items-center gap-2 mb-4">
           <RectangleGroupIcon className="w-5 h-5 text-gray-500" />
-          <h3 className="text-lg font-semibold">Available Styling Options</h3>
+          <h3 className="text-lg font-semibold">Component Variants</h3>
         </div>
         <VariantsSection variants={variants} setVariants={setVariants} />
-        <p className="text-xs text-gray-500 mt-4">
-          Upload images and add descriptions for each styling variant. These help authors understand the visual differences between options.
-        </p>
       </div>
 
       {/* Section 2: Limitations & Constraints - NOW EDITABLE */}
