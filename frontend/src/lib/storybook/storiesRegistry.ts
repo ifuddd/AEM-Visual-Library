@@ -16,7 +16,7 @@ export const storiesRegistry: ComponentStories[] = [
       'Background video not supported on mobile viewports',
       'Overlay opacity is fixed — cannot be customised per-page',
     ],
-    figmaUrl: 'https://www.figma.com/file/example/hero-banner',
+    figmaUrl: 'https://www.figma.com/design/nqhhQSjIlZbPChqOfdO3TQ/%E2%9C%A8-Design-System-for-AEM-v2-%E2%9C%A8?node-id=6035-74582',
     authoringNotes: '<p>Drag and drop the <strong>Hero Banner</strong> component into the page. Use the dialog to set headline, subtitle, CTA labels and target URLs. Choose an overlay colour from the Style tab.</p><ul><li>Keep headlines under 60 characters</li><li>Subtitle is optional — leave blank to hide</li><li>Use the DAM path picker for background images</li></ul>',
     designSpecsNotes: '<p>Min height: <code>420px</code> desktop / <code>280px</code> mobile. Typography: heading is <code>display-2</code>, subtitle is <code>body-lg</code>. Primary CTA uses brand primary fill; secondary uses ghost style.</p>',
     stories: [
