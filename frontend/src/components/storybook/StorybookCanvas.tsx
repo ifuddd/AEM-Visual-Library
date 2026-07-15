@@ -4,8 +4,6 @@ import { ComponentStories, StoryDefinition, ViewportKey, BackgroundKey, PreviewM
 import { getFigmaEmbedUrl } from '@/lib/figmaUtils';
 import { HeroBannerPreview } from './previews/HeroBannerPreview';
 import { CtaButtonPreview } from './previews/CtaButtonPreview';
-import { CardPreview } from './previews/CardPreview';
-import { GenericPreview } from './previews/GenericPreview';
 
 interface StorybookCanvasProps {
   component: ComponentStories;
@@ -54,17 +52,10 @@ const BG_OPTIONS: { key: BackgroundKey; icon: string; title: string }[] = [
   { key: 'transparent', icon: '◻️', title: 'Transparent background' },
 ];
 
-function renderPreview(component: ComponentStories, story: StoryDefinition, values: Record<string, any>) {
-  switch (component.slug) {
-    case 'hero-banner':
-      return <HeroBannerPreview {...values} />;
-    case 'cta-button':
-      return <CtaButtonPreview {...values} />;
-    case 'card':
-      return <CardPreview {...values} />;
-    default:
-      return <GenericPreview component={component} story={story} controlValues={values} />;
-  }
+function renderPreview(component: ComponentStories, values: Record<string, any>) {
+  if (component.slug === 'hero-banner') return <HeroBannerPreview {...values} />;
+  if (component.slug === 'cta-button') return <CtaButtonPreview {...values} />;
+  return null;
 }
 
 export function StorybookCanvas({
@@ -222,7 +213,7 @@ export function StorybookCanvas({
                   : undefined
               }
             >
-              {renderPreview(component, story, controlValues)}
+              {renderPreview(component, controlValues)}
             </div>
           </div>
         </div>
