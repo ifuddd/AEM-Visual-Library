@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { componentApi } from '@/lib/api';
 import { ComponentCard } from '@/components/catalog/ComponentCard';
@@ -45,15 +46,27 @@ export default function CatalogPage() {
               <h1 className="text-2xl font-bold text-gray-900">Component Catalog</h1>
               <p className="text-gray-600">Browse and discover AEM components</p>
             </div>
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              New Component
-            </button>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/storybook"
+                className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 rounded-md hover:bg-gray-50 hover:border-gray-300 transition-colors text-sm font-medium"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2L3 7v10l9 5 9-5V7L12 2z" fill="#FF4785" opacity="0.9" />
+                  <path d="M12 2L3 7l9 5 9-5-9-5z" fill="#FF4785" />
+                </svg>
+                Visual Library
+              </Link>
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                New Component
+              </button>
+            </div>
           </div>
         </div>
       </header>
