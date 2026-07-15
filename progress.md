@@ -1,8 +1,8 @@
 # AEM Visual Portal — Development Progress
 
-**Last Updated:** 2026-07-14
+**Last Updated:** 2026-07-15
 **Branch:** `claude/plan-aem-library-01NwUfar18HqXNwKgK6wfgmD`
-**Latest Commit:** `64e4a52` — Unify Component Variants with Interaction States layout in Usage Guide tab
+**Latest Commit:** `a7644a2` — Add comprehensive QA test suite for Visual Library Storybook feature
 **Server:** `cd frontend && npm run dev` → http://localhost:3000
 
 ---
@@ -57,6 +57,88 @@ AEM Visual Portal is a component library and documentation system for DXO (Digit
 - Component Variants — same accordion as Overview
 - When NOT to Use — LimitationsEditor (inline add/edit/delete)
 
+---
+
+## ✨ Visual Library (Storybook) — Completed 2026-07-15
+
+A full Storybook-style interactive component browser at `/storybook`, accessible from the "Visual Library" button in the catalog nav. Authors can preview AEM components with live controls in a sandboxed canvas — without needing to touch AEM.
+
+### Architecture
+
+```
+frontend/src/
+├── app/storybook/page.tsx              # Route entry — wraps layout in <Suspense>
+├── lib/storybook/
+│   ├── types.ts                        # ControlDefinition, StoryDefinition, ComponentStories, StorybookUIState
+│   ├── storiesRegistry.ts              # 12 ComponentStories entries, DEFAULT_STORY_ID
+│   └── utils.ts                        # findStoryById, buildInitialControlValues, buildStoryId
+└── components/storybook/
+    ├── StorybookTopBar.tsx             # Logo, back-to-catalog link, keyboard shortcut hints
+    ├── StorybookSidebar.tsx            # Collapsible component tree, search filter
+    ├── StorybookCanvas.tsx             # Viewport/background/zoom toolbar + preview render
+    ├── AddonsPanel.tsx                 # 260px docked panel, Controls / Docs / AEM tabs
+    ├── StorybookLayout.tsx             # Orchestrator — state, URL sync, keyboard shortcuts
+    ├── addons/
+    │   ├── ControlsPanel.tsx           # Table of live controls (text/boolean/select/number/color)
+    │   ├── DocsPanel.tsx               # Component docs, story chips, authoring notes, links
+    │   └── AemPanel.tsx                # AEM component path, allowed children, limitations
+    └── previews/
+        ├── HeroBannerPreview.tsx       # Gradient hero with overlay, alignment, CTA controls
+        ├── CtaButtonPreview.tsx        # All 4 variants with active-state highlighting
+        ├── CardPreview.tsx             # Vertical/horizontal layout, image toggle
+        └── GenericPreview.tsx          # Inline previews for 9 other components; styled fallback
+```
+
+### Components in the Registry (12)
+
+| Slug | Status | Stories | Controls |
+|------|--------|---------|----------|
+| hero-banner | READY | 4 | title, subtitle, alignment, overlay, ctaText, bgColor |
+| cta-button | READY | 4 | variant, size, text, disabled, fullWidth |
+| card | READY | 3 | title, description, layout, variant, showImage |
+| navigation-header | READY | 3 | menuStyle, stickyHeader, showSearch |
+| accordion | READY | 2 | allowMultiple, defaultOpen, animated |
+| tabs | READY | 2 | orientation, defaultTab, showIcons |
+| form-field | IN_REVIEW | 2 | fieldType, label, placeholder, required, showError |
+| alert | READY | 4 | type, title, message, dismissible |
+| image | READY | 3 | aspectRatio, caption, lazyLoad |
+| video-player | IN_REVIEW | 2 | autoplay, controls, muted |
+| teaser | READY | 3 | layout, showDate, showAuthor |
+| breadcrumb | READY | 2 | separator, showHome |
+
+### Features
+
+| Feature | Details |
+|---------|---------|
+| Live controls | All 5 control types (text / boolean / select / number / color), reset button |
+| Viewport switching | Mobile 375px / Tablet 768px / Desktop 100% with smooth transitions |
+| Background switching | Light / Dark / Transparent |
+| Zoom | 50%–150% in 10% steps |
+| URL sync | `?path=/story/<slug>--<storyId>` — shareable deep links |
+| Keyboard shortcuts | `S` = toggle sidebar, `A` = toggle addons panel |
+| Sidebar search | Instant filter across component names and story names |
+| Collapsible groups | Per-component expand/collapse in sidebar |
+| Docs tab | Status badge, stories list, authoring notes HTML, Figma + ADO links |
+| AEM tab | Component path in monospace code block, allowed children, limitations |
+
+### QA Results (2026-07-15)
+
+Playwright browser automation suite across 8 test categories:
+
+| Category | Tests | Result |
+|----------|-------|--------|
+| SB — Storybook load | 8 | ✅ All pass |
+| NAV — Sidebar navigation | 7 | ✅ All pass |
+| CTRL — Controls panel | 6 | ✅ All pass |
+| VP — Viewport switching | 3 | ✅ All pass |
+| BG — Background switching | 3 | ✅ All pass |
+| ZOOM — Zoom controls | 3 | ✅ All pass |
+| KBD — Keyboard shortcuts | 3 | ✅ All pass |
+| LINK — Back to catalog link | 2 | ✅ All pass |
+| **Total** | **35** | **35 pass / 0 fail** |
+
+---
+
 ### Key File Structure
 
 ```
@@ -67,7 +149,8 @@ frontend/src/
 │   │   ├── slug/[slug]/route.ts         # GET + PATCH /api/components/slug/:slug
 │   │   ├── tags/route.ts
 │   │   └── teams/route.ts
-│   ├── catalog/page.tsx                 # Catalog with grid/list/search/filter
+│   ├── catalog/page.tsx                 # Catalog with grid/list/search/filter + "Visual Library" nav
+│   ├── storybook/page.tsx               # Visual Library entry (Suspense wrapper)
 │   └── component/[slug]/page.tsx        # Detail page — all state + save logic
 ├── components/
 │   ├── catalog/
@@ -75,17 +158,36 @@ frontend/src/
 │   │   ├── ComponentListItem.tsx
 │   │   ├── FilterPanel.tsx
 │   │   └── ViewToggle.tsx
-│   └── detail/
-│       ├── ComponentTabs.tsx
-│       ├── OverviewTab.tsx
-│       ├── DesignSpecsTab.tsx
-│       ├── UsageGuideTab.tsx
-│       ├── VariantsSection.tsx          # Accordion CRUD with state image support
-│       ├── ComponentPropertiesTable.tsx # Editable AEM dialog schema table
-│       ├── LimitationsEditor.tsx        # Inline limitations editor
-│       ├── RichTextEditor.tsx
-│       ├── ThumbnailUpload.tsx
-│       └── CollapsibleSection.tsx
+│   ├── detail/
+│   │   ├── ComponentTabs.tsx
+│   │   ├── OverviewTab.tsx
+│   │   ├── DesignSpecsTab.tsx
+│   │   ├── UsageGuideTab.tsx
+│   │   ├── VariantsSection.tsx
+│   │   ├── ComponentPropertiesTable.tsx
+│   │   ├── LimitationsEditor.tsx
+│   │   ├── RichTextEditor.tsx
+│   │   ├── ThumbnailUpload.tsx
+│   │   └── CollapsibleSection.tsx
+│   └── storybook/                       # ← NEW
+│       ├── StorybookTopBar.tsx
+│       ├── StorybookSidebar.tsx
+│       ├── StorybookCanvas.tsx
+│       ├── AddonsPanel.tsx
+│       ├── StorybookLayout.tsx
+│       ├── addons/
+│       │   ├── ControlsPanel.tsx
+│       │   ├── DocsPanel.tsx
+│       │   └── AemPanel.tsx
+│       └── previews/
+│           ├── HeroBannerPreview.tsx
+│           ├── CtaButtonPreview.tsx
+│           ├── CardPreview.tsx
+│           └── GenericPreview.tsx
+├── lib/storybook/                        # ← NEW
+│   ├── types.ts
+│   ├── storiesRegistry.ts
+│   └── utils.ts
 └── data/mockComponents.ts               # 18 components, in-memory
 ```
 
@@ -95,32 +197,39 @@ frontend/src/
 
 ### What's Working
 - Server runs at http://localhost:3000
-- 18 components accessible in the catalog
-- All editing fields functional: title, description, status, figma link, thumbnail, variants (including per-state images), limitations, dialog schema, authoring notes, design specs notes, ADO link
+- **`/catalog`** — 18 components, grid/list view, search, filter, "Visual Library" nav button
+- **`/storybook`** — fully interactive Visual Library with 12 components, live controls, viewport/background/zoom, URL sync, keyboard shortcuts
+- **`/component/[slug]`** — full detail page with Overview / Design Specs / Usage Guide tabs
+- All editing fields functional: title, description, status, figma link, thumbnail, variants, limitations, dialog schema, authoring notes, design specs notes, ADO link
 - Save triggers PATCH to `/api/components/slug/:slug` with full payload
 - Unsaved changes tracked; save button enables only when changes exist
-- TypeScript: `npx tsc --noEmit` passes with no errors (after rebuilding shared dist)
+- TypeScript: `npx tsc --noEmit` passes with no errors
 
 ---
 
 ## Next Steps
 
-### Priority 1 — Real Screenshots
-- Current: color-coded placeholder URLs via `/api/placeholder/`
-- Needed: actual component screenshots from AEM or Figma
-- Approach: swap `imageUrl` / `stateImages` values in `mockComponents.ts`
+### Priority 1 — Richer Component Previews
+The current previews are React-built approximations. Upgrade to pixel-faithful renderings:
+- Align `HeroBannerPreview`, `CardPreview`, `CtaButtonPreview` more closely with actual AEM component output
+- Add remaining preview components in `GenericPreview.tsx` (currently 9 inline components; carousel, modal, section-container, content-list, text-block still use the colored placeholder fallback)
 
-### Priority 2 — More Components Documented
-Only CTA Button has full variants + state images + complete notes. 17 others need:
+### Priority 2 — Sync Registry with Catalog Mock Data
+The `storiesRegistry.ts` is maintained separately from `data/mockComponents.ts`. Unify them:
+- Derive `ComponentStories` entries directly from `mockComponents.ts` at build time, or
+- Add a registry field to `mockComponents.ts` and auto-generate the sidebar from it
+
+### Priority 3 — More Mock Data
+Only CTA Button has full variants + state images + complete notes. Others need:
 - Variants with images and descriptions
 - Limitations
 - Dialog schema
 
-### Priority 3 — Usage Guidelines Rich Text
-The rich text editor (Tiptap) for authoring notes was removed from the Usage Guide restructure. It should be re-added as a fourth section at the bottom of the Usage Guide tab.
+### Priority 4 — Re-add Authoring Notes Rich Text Editor
+The Tiptap rich text editor for authoring notes was removed during the Usage Guide restructure. It should be re-added as a fourth section at the bottom of the Usage Guide tab.
 
 ### Medium Priority
-- **Component path display** — make the AEM path more prominent / copyable
+- **Component path display** — make the AEM path more prominent / copyable in the catalog card and detail page
 - **Export / print view** — print-optimised one-pager per component
 
 ### Longer Term
@@ -136,6 +245,8 @@ The rich text editor (Tiptap) for authoring notes was removed from the Usage Gui
 cd frontend
 npm run dev
 # → http://localhost:3000
+# Catalog:        http://localhost:3000/catalog
+# Visual Library: http://localhost:3000/storybook
 ```
 
 TypeScript check (rebuild shared first if types are missing):
@@ -149,6 +260,8 @@ cd ../frontend && npx tsc --noEmit
 ## Recent Commits
 
 ```
+a7644a2  Add comprehensive QA test suite for Visual Library Storybook feature
+f3e0a36  Add Visual Library (Storybook) — interactive AEM component browser at /storybook
 64e4a52  Unify Component Variants with Interaction States layout in Usage Guide tab
 4f5afeb  Fix duplicate dialogSchema prop in ComponentTabs JSX call
 683b386  Restructure Design Specs & Usage Guide tabs with structured docs layout
@@ -157,6 +270,4 @@ cd ../frontend && npx tsc --noEmit
 33405b5  Add state image upload editing to variant editor
 bbe4aad  Make Usage Guide tab fully editable with limitations and dialog schema editors
 7aab40e  Add state image matrix support to reflect design system template
-5bda259  Fix thumbnail upload to use local file storage
-047533b  Fix thumbnail image display with unified ComponentImage component
 ```
