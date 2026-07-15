@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { ComponentStories, StoryDefinition } from '@/lib/storybook/types';
 
 interface GenericPreviewProps {
@@ -195,6 +196,224 @@ function TeaserPreview({ variant = 'default', title = 'Teaser Headline', pretitl
   );
 }
 
+const SLIDE_GRADIENTS = [
+  'from-blue-500 to-blue-700',
+  'from-violet-500 to-purple-700',
+  'from-emerald-500 to-teal-700',
+  'from-rose-500 to-pink-700',
+  'from-amber-500 to-orange-700',
+];
+
+const SLIDE_LABELS = ['Slide One', 'Slide Two', 'Slide Three', 'Slide Four', 'Slide Five'];
+
+function CarouselPreview({ slideCount = 4, currentSlide = 0, showArrows = true, showDots = true, autoPlay = false, theme = 'light' }: Record<string, any>) {
+  const count = Math.max(1, Math.min(Number(slideCount), SLIDE_GRADIENTS.length));
+  const active = Math.max(0, Math.min(Number(currentSlide), count - 1));
+  const isDark = theme === 'dark';
+  const gradient = SLIDE_GRADIENTS[active % SLIDE_GRADIENTS.length];
+  return (
+    <div className={`w-full max-w-xl mx-auto rounded-xl overflow-hidden shadow ${isDark ? 'bg-gray-800' : 'bg-white'} border ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+      <div className={`relative aspect-video bg-gradient-to-br ${gradient} flex flex-col items-center justify-center`}>
+        {autoPlay && (
+          <span className="absolute top-3 right-3 bg-black/40 text-white text-xs px-2 py-0.5 rounded-full">▶ Auto-play</span>
+        )}
+        <div className="text-white text-2xl font-bold mb-1">{SLIDE_LABELS[active]}</div>
+        <div className="text-white/60 text-sm">{active + 1} / {count}</div>
+        {showArrows && (
+          <>
+            <button className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition-colors text-lg">‹</button>
+            <button className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition-colors text-lg">›</button>
+          </>
+        )}
+      </div>
+      {showDots && (
+        <div className={`flex justify-center gap-1.5 py-3 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
+          {Array.from({ length: count }).map((_, i) => (
+            <div key={i} className={`rounded-full transition-all ${i === active ? 'w-5 h-2 bg-blue-500' : `w-2 h-2 ${isDark ? 'bg-gray-600' : 'bg-gray-300'}`}`} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ModalPreview({ title = 'Confirm Action', size = 'md', hasFooter = true, showCloseButton = true }: Record<string, any>) {
+  const widths: Record<string, string> = { sm: 'max-w-sm', md: 'max-w-md', lg: 'max-w-lg' };
+  return (
+    <div className="relative w-full flex items-center justify-center min-h-[320px] bg-gray-900/30 rounded-xl overflow-hidden">
+      <div className={`w-full ${widths[size as string] ?? widths.md} mx-4 bg-white rounded-xl shadow-2xl overflow-hidden relative z-10`}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <h3 className="font-semibold text-gray-900 text-base">{title}</h3>
+          {showCloseButton && (
+            <button className="text-gray-400 hover:text-gray-600 text-xl leading-none w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">×</button>
+          )}
+        </div>
+        <div className="px-5 py-4">
+          <p className="text-sm text-gray-600 leading-relaxed">This action cannot be undone. All associated data will be permanently removed from the system.</p>
+          <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-xs text-amber-800">Make sure you have exported any important data before continuing.</p>
+          </div>
+        </div>
+        {hasFooter && (
+          <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-gray-100 bg-gray-50">
+            <button className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">Cancel</button>
+            <button className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors">Confirm</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const PADDING_MAP: Record<string, string> = { sm: 'p-4', md: 'p-8', lg: 'p-12', xl: 'p-16' };
+
+function SectionContainerPreview({ layout = '1-col', bgType = 'color', bgColor = '#f9fafb', padding = 'md', showLabel = true }: Record<string, any>) {
+  const cols = layout === '3-col' ? 3 : layout === '2-col' ? 2 : 1;
+  const pad = PADDING_MAP[padding as string] ?? PADDING_MAP.md;
+  const bgStyle =
+    bgType === 'gradient'
+      ? { background: `linear-gradient(135deg, ${bgColor} 0%, ${bgColor}99 100%)` }
+      : bgType === 'none'
+      ? {}
+      : { backgroundColor: bgColor };
+  const isDark = bgType === 'gradient' || bgColor.startsWith('#1') || bgColor.startsWith('#0') || bgColor === '#111827';
+  return (
+    <div className={`w-full rounded-xl overflow-hidden border-2 border-dashed border-gray-300`} style={bgStyle}>
+      <div className={pad}>
+        {showLabel && (
+          <div className="mb-3 text-xs font-semibold uppercase tracking-widest text-center opacity-50" style={{ color: isDark ? '#fff' : '#374151' }}>
+            Section Container · {layout} · {padding} padding
+          </div>
+        )}
+        <div className={`grid gap-4 ${cols === 3 ? 'grid-cols-3' : cols === 2 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          {Array.from({ length: cols }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-lg border-2 border-dashed flex items-center justify-center py-10 text-xs font-medium opacity-40"
+              style={{ borderColor: isDark ? '#ffffff50' : '#00000030', color: isDark ? '#fff' : '#374151' }}
+            >
+              Drop zone {i + 1}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const CONTENT_LIST_ITEMS = [
+  { title: 'Getting Started with AEM Components', date: '12 Jul 2026', author: 'Alex Chen', tag: 'Guide' },
+  { title: 'Design System Token Reference', date: '10 Jul 2026', author: 'Jordan Lee', tag: 'Reference' },
+  { title: 'Authoring Best Practices for Campaign Pages', date: '8 Jul 2026', author: 'Sam Rivera', tag: 'Best Practice' },
+  { title: 'Hero Banner Component Deep Dive', date: '5 Jul 2026', author: 'Morgan Kim', tag: 'Component' },
+  { title: 'Migrating from Legacy CMS to AEM', date: '2 Jul 2026', author: 'Taylor Park', tag: 'Migration' },
+  { title: 'Accessibility Checklist for AEM Authors', date: '29 Jun 2026', author: 'Casey Wu', tag: 'Accessibility' },
+  { title: 'Navigation Header Configuration Guide', date: '25 Jun 2026', author: 'Jordan Lee', tag: 'Guide' },
+  { title: 'Form Components and Validation Patterns', date: '20 Jun 2026', author: 'Alex Chen', tag: 'Forms' },
+];
+
+function ContentListPreview({ displayMode = 'cards', showDate = true, showAuthor = false, itemCount = 6 }: Record<string, any>) {
+  const count = Math.max(1, Math.min(Number(itemCount), CONTENT_LIST_ITEMS.length));
+  const items = CONTENT_LIST_ITEMS.slice(0, count);
+
+  if (displayMode === 'compact') {
+    return (
+      <div className="w-full max-w-xl mx-auto divide-y divide-gray-100">
+        {items.map((item, i) => (
+          <div key={i} className="flex items-center justify-between py-2.5 gap-2">
+            <a href="#" className="text-sm font-medium text-primary-600 hover:underline truncate">{item.title}</a>
+            {showDate && <span className="text-xs text-gray-400 flex-shrink-0">{item.date}</span>}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (displayMode === 'list') {
+    return (
+      <div className="w-full max-w-xl mx-auto space-y-2">
+        {items.map((item, i) => (
+          <div key={i} className="flex gap-3 p-3 rounded-lg border border-gray-100 hover:border-gray-200 bg-white transition-colors">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex-shrink-0 flex items-center justify-center">
+              <span className="text-white text-xs font-bold">{item.tag.charAt(0)}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">{item.title}</p>
+              <div className="flex items-center gap-2 mt-0.5">
+                {showDate && <span className="text-xs text-gray-400">{item.date}</span>}
+                {showAuthor && <span className="text-xs text-gray-400">· {item.author}</span>}
+                <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{item.tag}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // cards
+  const gridCount = Math.min(count, 6);
+  const itemsForGrid = items.slice(0, gridCount);
+  return (
+    <div className={`w-full grid gap-3 ${gridCount <= 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+      {itemsForGrid.map((item, i) => (
+        <div key={i} className="rounded-lg border border-gray-100 overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow">
+          <div className="h-20 bg-gradient-to-br from-primary-400 to-primary-600" />
+          <div className="p-3">
+            <span className="text-xs font-medium text-primary-600 uppercase tracking-wide">{item.tag}</span>
+            <p className="text-xs font-semibold text-gray-900 mt-1 leading-snug line-clamp-2">{item.title}</p>
+            <div className="flex items-center gap-1 mt-2">
+              {showDate && <span className="text-xs text-gray-400">{item.date}</span>}
+              {showAuthor && showDate && <span className="text-xs text-gray-300">·</span>}
+              {showAuthor && <span className="text-xs text-gray-400">{item.author}</span>}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TextBlockPreview({ contentType = 'article', align = 'left', maxWidth = 'prose' }: Record<string, any>) {
+  const alignClass = align === 'center' ? 'text-center mx-auto' : '';
+  const widthClass = maxWidth === 'wide' ? 'max-w-2xl' : maxWidth === 'full' ? 'max-w-full' : 'max-w-prose';
+
+  if (contentType === 'quote') {
+    return (
+      <div className={`${widthClass} ${alignClass} mx-auto px-4 py-6`}>
+        <blockquote className="border-l-4 border-primary-500 pl-5 py-1">
+          <p className="text-lg font-medium text-gray-800 italic leading-relaxed">"The best way to predict the future is to design it. AEM gives content teams the tools to do exactly that, without waiting for engineering."</p>
+          <footer className="mt-3 text-sm text-gray-500">— Jordan Lee, Head of Digital Experience</footer>
+        </blockquote>
+      </div>
+    );
+  }
+
+  if (contentType === 'intro') {
+    return (
+      <div className={`${widthClass} ${alignClass} mx-auto px-4 py-6 space-y-3`}>
+        <p className="text-xl font-medium text-gray-800 leading-relaxed">Adobe Experience Manager empowers authors to create, manage, and publish digital experiences across every channel — without writing a single line of code.</p>
+        <p className="text-sm text-gray-500">This component uses the AEM Rich Text Editor. Authors can apply styles from the toolbar above the editing canvas.</p>
+      </div>
+    );
+  }
+
+  // article
+  return (
+    <div className={`${widthClass} ${alignClass} mx-auto px-4 py-6 space-y-4`}>
+      <h2 className="text-2xl font-bold text-gray-900">Getting Started with AEM Components</h2>
+      <p className="text-gray-600 leading-relaxed text-sm">Adobe Experience Manager provides a comprehensive set of core components that cover the most common content authoring scenarios. Each component is designed with accessibility, performance, and author experience in mind.</p>
+      <h3 className="text-lg font-semibold text-gray-800">Using the RTE</h3>
+      <p className="text-gray-600 leading-relaxed text-sm">The Rich Text Editor toolbar appears when you click inside a Text Block in author mode. From there you can apply <strong>bold</strong>, <em>italic</em>, headings, lists, and inline links.</p>
+      <ul className="list-disc pl-5 space-y-1 text-sm text-gray-600">
+        <li>Use H2 for section headings, H3 for sub-sections</li>
+        <li>Avoid pasting directly from Word — use the paste-as-text option first</li>
+        <li>Internal links should use the AEM path picker, not raw URLs</li>
+      </ul>
+    </div>
+  );
+}
+
 const previewMap: Record<string, React.FC<Record<string, any>>> = {
   'navigation-header': NavigationHeaderPreview,
   accordion: AccordionPreview,
@@ -205,6 +424,11 @@ const previewMap: Record<string, React.FC<Record<string, any>>> = {
   image: ImagePreview,
   'video-player': VideoPlayerPreview,
   teaser: TeaserPreview,
+  carousel: CarouselPreview,
+  modal: ModalPreview,
+  'section-container': SectionContainerPreview,
+  'content-list': ContentListPreview,
+  'text-block': TextBlockPreview,
 };
 
 const slugColors: Record<string, string> = {
