@@ -14,6 +14,7 @@ export interface StoryDefinition {
   description?: string;
   args: Record<string, any>;
   imageUrl?: string;
+  figmaNodeUrl?: string;
 }
 
 export interface ComponentStories {
@@ -37,6 +38,8 @@ export type ViewportKey = 'mobile' | 'tablet' | 'desktop';
 export type BackgroundKey = 'light' | 'dark' | 'transparent';
 export type AddonTab = 'controls' | 'docs' | 'aem';
 
+export type PreviewMode = 'live' | 'figma';
+
 export interface StorybookUIState {
   selectedStoryId: string;
   controlValues: Record<string, any>;
@@ -46,4 +49,5 @@ export interface StorybookUIState {
   addonsOpen: boolean;
   sidebarOpen: boolean;
   activeAddon: AddonTab;
+  previewMode: PreviewMode;
 }

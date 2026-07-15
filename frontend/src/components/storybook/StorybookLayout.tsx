@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { StorybookUIState, ViewportKey, BackgroundKey, AddonTab } from '@/lib/storybook/types';
+import { StorybookUIState, ViewportKey, BackgroundKey, AddonTab, PreviewMode } from '@/lib/storybook/types';
 import { storiesRegistry, DEFAULT_STORY_ID } from '@/lib/storybook/storiesRegistry';
 import { findStoryById, buildInitialControlValues } from '@/lib/storybook/utils';
 import { StorybookTopBar } from './StorybookTopBar';
@@ -32,6 +32,7 @@ export function StorybookLayout() {
       addonsOpen: true,
       sidebarOpen: true,
       activeAddon: 'controls',
+      previewMode: 'live',
     };
   });
 
@@ -106,9 +107,11 @@ export function StorybookLayout() {
             viewport={state.viewport}
             background={state.background}
             zoom={state.zoom}
+            previewMode={state.previewMode}
             onViewportChange={(v: ViewportKey) => setState((s) => ({ ...s, viewport: v }))}
             onBackgroundChange={(b: BackgroundKey) => setState((s) => ({ ...s, background: b }))}
             onZoomChange={(z: number) => setState((s) => ({ ...s, zoom: z }))}
+            onPreviewModeChange={(mode: PreviewMode) => setState((s) => ({ ...s, previewMode: mode }))}
           />
 
           {state.addonsOpen && (
