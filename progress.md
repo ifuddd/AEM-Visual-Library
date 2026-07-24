@@ -1,8 +1,8 @@
 # AEM Visual Portal — Development Progress
 
-**Last Updated:** 2026-07-15
+**Last Updated:** 2026-07-24
 **Branch:** `claude/plan-aem-library-01NwUfar18HqXNwKgK6wfgmD`
-**Latest Commit:** `a7644a2` — Add comprehensive QA test suite for Visual Library Storybook feature
+**Latest Commit:** `e46e703` — Trim storybook to Hero Banner and CTA Button only
 **Server:** `cd frontend && npm run dev` → http://localhost:3000
 
 ---
@@ -89,22 +89,14 @@ frontend/src/
         └── GenericPreview.tsx          # Inline previews for 9 other components; styled fallback
 ```
 
-### Components in the Registry (12)
+### Components in the Registry (2)
 
-| Slug | Status | Stories | Controls |
-|------|--------|---------|----------|
-| hero-banner | READY | 4 | title, subtitle, alignment, overlay, ctaText, bgColor |
-| cta-button | READY | 4 | variant, size, text, disabled, fullWidth |
-| card | READY | 3 | title, description, layout, variant, showImage |
-| navigation-header | READY | 3 | menuStyle, stickyHeader, showSearch |
-| accordion | READY | 2 | allowMultiple, defaultOpen, animated |
-| tabs | READY | 2 | orientation, defaultTab, showIcons |
-| form-field | IN_REVIEW | 2 | fieldType, label, placeholder, required, showError |
-| alert | READY | 4 | type, title, message, dismissible |
-| image | READY | 3 | aspectRatio, caption, lazyLoad |
-| video-player | IN_REVIEW | 2 | autoplay, controls, muted |
-| teaser | READY | 3 | layout, showDate, showAuthor |
-| breadcrumb | READY | 2 | separator, showHome |
+> **Note:** Originally grew to 17 registered components (see QA results below, run when there were 12). On 2026-07-24 the registry was deliberately trimmed down to just the components with real Figma designs behind them — see [Figma Integration](#figma-integration--livedesign-mode-2026-07-24) below for why and what's next.
+
+| Slug | Status | Stories | Controls | Figma |
+|------|--------|---------|----------|-------|
+| hero-banner | READY | 4 | title, subtitle, alignment, overlay, ctaText, bgColor | ✅ Real design linked |
+| cta-button | READY | 4 | variant, size, text, disabled, fullWidth | ⏳ Awaiting URL |
 
 ### Features
 
@@ -136,6 +128,38 @@ Playwright browser automation suite across 8 test categories:
 | KBD — Keyboard shortcuts | 3 | ✅ All pass |
 | LINK — Back to catalog link | 2 | ✅ All pass |
 | **Total** | **35** | **35 pass / 0 fail** |
+
+---
+
+## Figma Integration — Live/Design Mode (2026-07-24)
+
+The storybook previews were all React-built approximations — good for showing interactive states, but not a faithful match to the real designs. The user has real components in a Figma file ("✨ Design System for AEM v2 ✨") and wants those visible directly in the storybook. This session added that capability and then intentionally cut scope to match what's real today.
+
+### What changed
+
+**1. Live / Design mode toggle** — `StorybookCanvas.tsx` toolbar now has a pill switch:
+- **Live** (default) — the existing interactive React preview, controls fully functional
+- **Design** — embeds the real Figma frame in an iframe via the existing `getFigmaEmbedUrl()` util (`lib/figmaUtils.ts` — the same one `DesignSpecsTab` already used on the component detail page, no new utility code written)
+- Viewport / background / zoom controls grey out in Design mode (they don't apply to a Figma iframe)
+- A `FigmaEmptyState` renders when a component has no Figma URL configured yet, with inline guidance on where to add one
+
+**2. Type additions** (`lib/storybook/types.ts`):
+- `StoryDefinition.figmaNodeUrl?: string` — per-story frame URL (e.g. a "Dark" variant can point at a different Figma frame than "Default")
+- `StorybookUIState.previewMode: 'live' | 'figma'` — persists across story navigation within a session
+
+**3. URL resolution order:** `story.figmaNodeUrl` → `component.figmaUrl` → empty state.
+
+**4. Hero Banner wired to the real design** — `figmaUrl` in `storiesRegistry.ts` now points at the real "Design System for AEM v2" Figma file (node-id `6035-74582`), replacing the old `figma.com/file/example/...` placeholder.
+
+**5. Registry trimmed 17 → 2** — per explicit user request, all components without a real Figma link were removed to keep the storybook honest about what's actually backed by a design: `card`, `navigation-header`, `accordion`, `tabs`, `form-field`, `alert`, `image`, `video-player`, `teaser`, `breadcrumb`, `carousel`, `modal`, `section-container`, `content-list`, `text-block`. Only **Hero Banner** and **CTA Button** remain. `previews/CardPreview.tsx` and `previews/GenericPreview.tsx` were deleted as dead code (nothing referenced them after the trim). If any of the removed components come back with a real Figma URL, their old placeholder preview code is recoverable from commit `6432890` rather than needing to be rewritten from scratch.
+
+### Commits this round
+```
+6432890  Add 5 missing components to Visual Library storybook (later reverted by trim below)
+032de28  Add Live/Design mode toggle to Visual Library storybook
+cbb79d2  Wire real Figma URL for Hero Banner in storybook registry
+e46e703  Trim storybook to Hero Banner and CTA Button only
+```
 
 ---
 
@@ -181,9 +205,7 @@ frontend/src/
 │       │   └── AemPanel.tsx
 │       └── previews/
 │           ├── HeroBannerPreview.tsx
-│           ├── CtaButtonPreview.tsx
-│           ├── CardPreview.tsx
-│           └── GenericPreview.tsx
+│           └── CtaButtonPreview.tsx
 ├── lib/storybook/                        # ← NEW
 │   ├── types.ts
 │   ├── storiesRegistry.ts
@@ -198,7 +220,7 @@ frontend/src/
 ### What's Working
 - Server runs at http://localhost:3000
 - **`/catalog`** — 18 components, grid/list view, search, filter, "Visual Library" nav button
-- **`/storybook`** — fully interactive Visual Library with 12 components, live controls, viewport/background/zoom, URL sync, keyboard shortcuts
+- **`/storybook`** — interactive Visual Library with 2 components (Hero Banner, CTA Button), Live/Design mode toggle, live controls, viewport/background/zoom, URL sync, keyboard shortcuts. Hero Banner's Design mode shows the real Figma frame; CTA Button's Design mode shows the empty state until a Figma URL is supplied
 - **`/component/[slug]`** — full detail page with Overview / Design Specs / Usage Guide tabs
 - All editing fields functional: title, description, status, figma link, thumbnail, variants, limitations, dialog schema, authoring notes, design specs notes, ADO link
 - Save triggers PATCH to `/api/components/slug/:slug` with full payload
@@ -209,10 +231,10 @@ frontend/src/
 
 ## Next Steps
 
-### Priority 1 — Richer Component Previews
-The current previews are React-built approximations. Upgrade to pixel-faithful renderings:
-- Align `HeroBannerPreview`, `CardPreview`, `CtaButtonPreview` more closely with actual AEM component output
-- Add remaining preview components in `GenericPreview.tsx` (currently 9 inline components; carousel, modal, section-container, content-list, text-block still use the colored placeholder fallback)
+### Priority 1 — Get Real Figma URLs for Remaining Components
+The Live/Design toggle and empty-state UX are built; only Hero Banner has a real Figma URL wired in. Next:
+- Get a Figma frame URL for **CTA Button** (same pattern as Hero Banner: open the frame in Figma, copy the browser URL, paste it — `figmaUrl` for the whole component or `figmaNodeUrl` per story for variant-level precision)
+- Decide which of the 15 removed components (`card`, `navigation-header`, `accordion`, `tabs`, `form-field`, `alert`, `image`, `video-player`, `teaser`, `breadcrumb`, `carousel`, `modal`, `section-container`, `content-list`, `text-block`) should come back — re-add only once each has a real design; old preview code is recoverable from commit `6432890`
 
 ### Priority 2 — Sync Registry with Catalog Mock Data
 The `storiesRegistry.ts` is maintained separately from `data/mockComponents.ts`. Unify them:
@@ -220,7 +242,7 @@ The `storiesRegistry.ts` is maintained separately from `data/mockComponents.ts`.
 - Add a registry field to `mockComponents.ts` and auto-generate the sidebar from it
 
 ### Priority 3 — More Mock Data
-Only CTA Button has full variants + state images + complete notes. Others need:
+Only CTA Button has full variants + state images + complete notes. As components are re-added (Priority 1), they'll need:
 - Variants with images and descriptions
 - Limitations
 - Dialog schema
@@ -260,14 +282,14 @@ cd ../frontend && npx tsc --noEmit
 ## Recent Commits
 
 ```
+e46e703  Trim storybook to Hero Banner and CTA Button only
+cbb79d2  Wire real Figma URL for Hero Banner in storybook registry
+032de28  Add Live/Design mode toggle to Visual Library storybook
+6432890  Add 5 missing components to Visual Library storybook
+6815441  Update progress.md with Visual Library feature summary and QA results
 a7644a2  Add comprehensive QA test suite for Visual Library Storybook feature
 f3e0a36  Add Visual Library (Storybook) — interactive AEM component browser at /storybook
 64e4a52  Unify Component Variants with Interaction States layout in Usage Guide tab
 4f5afeb  Fix duplicate dialogSchema prop in ComponentTabs JSX call
 683b386  Restructure Design Specs & Usage Guide tabs with structured docs layout
-1f4f036  Fix thumbnail upload 500 on Vercel — store base64 directly
-237ee9c  Fix images not showing on catalog and detail pages
-33405b5  Add state image upload editing to variant editor
-bbe4aad  Make Usage Guide tab fully editable with limitations and dialog schema editors
-7aab40e  Add state image matrix support to reflect design system template
 ```
