@@ -1,7 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'standalone',
+  // Deliberately not using output: 'standalone', that mode is for self-hosted
+  // Docker/Node deployments, and Next 14.0.x's file-trace copier breaks in this
+  // npm-workspaces monorepo layout (hoisted node_modules) regardless of
+  // outputFileTracingRoot. This project deploys via Vercel / Azure Static Web
+  // Apps, neither of which needs or benefits from standalone output.
   images: {
     remotePatterns: [
       {

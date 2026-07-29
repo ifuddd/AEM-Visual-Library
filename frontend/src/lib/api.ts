@@ -4,8 +4,6 @@ import type {
   PaginatedResponse,
   ComponentFilters,
   ApiResponse,
-  ContributionRequest,
-  ContributionRequestInput,
 } from '@aem-portal/shared';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
@@ -50,65 +48,13 @@ export const componentApi = {
     return response.data.data!;
   },
 
-  getById: async (id: string): Promise<Component> => {
-    const response = await api.get<ApiResponse<Component>>(`/api/components/${id}`);
-    return response.data.data!;
-  },
-
   getBySlug: async (slug: string): Promise<Component> => {
     const response = await api.get<ApiResponse<Component>>(`/api/components/slug/${slug}`);
     return response.data.data!;
   },
 
-  getTags: async (): Promise<string[]> => {
-    const response = await api.get<ApiResponse<string[]>>('/api/components/tags');
-    return response.data.data!;
-  },
-
   getTeams: async (): Promise<string[]> => {
     const response = await api.get<ApiResponse<string[]>>('/api/components/teams');
-    return response.data.data!;
-  },
-};
-
-// Wiki API
-export const wikiApi = {
-  getContent: async (path: string): Promise<string> => {
-    const response = await api.get<ApiResponse<{ content: string }>>(
-      `/api/wiki/content?path=${encodeURIComponent(path)}`
-    );
-    return response.data.data!.content;
-  },
-};
-
-// Contribution API
-export const contributionApi = {
-  create: async (input: ContributionRequestInput): Promise<ContributionRequest> => {
-    const response = await api.post<ApiResponse<ContributionRequest>>(
-      '/api/contributions',
-      input
-    );
-    return response.data.data!;
-  },
-
-  getAll: async (
-    page?: number,
-    pageSize?: number
-  ): Promise<PaginatedResponse<ContributionRequest>> => {
-    const params = new URLSearchParams();
-    if (page) params.append('page', page.toString());
-    if (pageSize) params.append('pageSize', pageSize.toString());
-
-    const response = await api.get<ApiResponse<PaginatedResponse<ContributionRequest>>>(
-      `/api/contributions?${params.toString()}`
-    );
-    return response.data.data!;
-  },
-
-  getMy: async (): Promise<PaginatedResponse<ContributionRequest>> => {
-    const response = await api.get<ApiResponse<PaginatedResponse<ContributionRequest>>>(
-      '/api/contributions/my'
-    );
     return response.data.data!;
   },
 };

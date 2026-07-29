@@ -9,7 +9,6 @@ const VALID_STATUS = new Set(['ready', 'in_review']);
 const ALLOWED_PATCH_FIELDS = new Set([
   'title', 'description', 'tags', 'status', 'ownerEmail', 'ownerTeam',
   'variants', 'authoringNotes', 'designSpecsNotes', 'azureDevOpsWorkItem', 'figmaLink',
-  'repoLink', 'azureWikiPath', 'azureWikiUrl',
 ]);
 
 function mapToComponent(component: any): Component {
@@ -29,11 +28,6 @@ function mapToComponent(component: any): Component {
     azureDevOpsWorkItem: component.azureDevOpsWorkItem || null,
     figmaLink: component.figmaLink || null,
 
-    repoLink: component.repoLink || null,
-    azureWikiPath: component.azureWikiPath || null,
-    azureWikiUrl: component.azureWikiUrl || null,
-    figmaLinks: component.figmaLinks,
-
     aemMetadata: {
       componentPath: component.aemComponentPath || null,
       dialogSchema: component.aemDialogSchema || null,
@@ -43,8 +37,6 @@ function mapToComponent(component: any): Component {
     },
     visualAssets: {
       thumbnailUrl: component.thumbnailUrl || null,
-      screenshotAuthorUrl: component.screenshotAuthorUrl || null,
-      screenshotPublishedUrl: component.screenshotPublishedUrl || null,
     },
     lastUpdate: {
       source: component.lastUpdatedSource as any,
@@ -121,8 +113,6 @@ export async function PATCH(
       ...mockComponents[componentIndex],
       ...safeUpdate,
       thumbnailUrl: visualAssets.thumbnailUrl ?? mockComponents[componentIndex].thumbnailUrl,
-      screenshotAuthorUrl: visualAssets.screenshotAuthorUrl ?? mockComponents[componentIndex].screenshotAuthorUrl,
-      screenshotPublishedUrl: visualAssets.screenshotPublishedUrl ?? mockComponents[componentIndex].screenshotPublishedUrl,
       ...(aemMetadata.componentPath !== undefined && { aemComponentPath: aemMetadata.componentPath }),
       ...(aemMetadata.dialogSchema !== undefined && { aemDialogSchema: aemMetadata.dialogSchema }),
       ...(aemMetadata.allowedChildren !== undefined && { aemAllowedChildren: aemMetadata.allowedChildren }),

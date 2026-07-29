@@ -211,7 +211,7 @@ export function ComponentCreateModal({ isOpen, onClose, teams }: ComponentCreate
               <option value={ComponentStatus.IN_REVIEW}>In Review</option>
               <option value={ComponentStatus.READY}>Ready</option>
             </select>
-            <p className="mt-1 text-sm text-gray-500">Components typically start as "In Review"</p>
+            <p className="mt-1 text-sm text-gray-500">Components typically start as &ldquo;In Review&rdquo;</p>
           </div>
 
           {/* Thumbnail */}
