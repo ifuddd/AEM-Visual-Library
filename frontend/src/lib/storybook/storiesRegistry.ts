@@ -1,38 +1,59 @@
 import { ComponentStories } from './types';
 
-export const DEFAULT_STORY_ID = 'hero-banner--default';
+export const DEFAULT_STORY_ID = 'hero-banner--with-alert';
 
 export const storiesRegistry: ComponentStories[] = [
   {
     slug: 'hero-banner',
     title: 'Hero Banner',
-    description: 'Full-width promotional banner with headline, subtitle and CTA buttons. Supports image overlays and configurable alignment.',
+    description: 'Full-bleed course page hero with a photo background, dark gradient overlay, course title/type/UCAS code, and an optional info alert banner for application-status messaging.',
     status: 'READY',
     ownerTeam: 'Marketing Platform',
     aemComponentPath: '/apps/aem-visual-library/components/content/hero-banner',
     aemAllowedChildren: [],
     aemLimitations: [
-      'Maximum two CTA buttons per instance',
-      'Background video not supported on mobile viewports',
-      'Overlay opacity is fixed — cannot be customised per-page',
+      'Background image is fixed per page — no per-breakpoint cropping control',
+      'Alert banner supports a single message only, no dismiss/close action',
+      'UCAS code display expects exactly one code value',
     ],
-    figmaUrl: 'https://www.figma.com/design/nqhhQSjIlZbPChqOfdO3TQ/%E2%9C%A8-Design-System-for-AEM-v2-%E2%9C%A8?node-id=6035-74582',
-    authoringNotes: '<p>Drag and drop the <strong>Hero Banner</strong> component into the page. Use the dialog to set headline, subtitle, CTA labels and target URLs. Choose an overlay colour from the Style tab.</p><ul><li>Keep headlines under 60 characters</li><li>Subtitle is optional — leave blank to hide</li><li>Use the DAM path picker for background images</li></ul>',
-    designSpecsNotes: '<p>Min height: <code>420px</code> desktop / <code>280px</code> mobile. Typography: heading is <code>display-2</code>, subtitle is <code>body-lg</code>. Primary CTA uses brand primary fill; secondary uses ghost style.</p>',
+    figmaUrl: 'https://www.figma.com/design/nqhhQSjIlZbPChqOfdO3TQ/%E2%9C%A8-Design-System-for-AEM-v2-%E2%9C%A8?node-id=6035-74549',
+    authoringNotes: '<p>Drag and drop the <strong>Hero Banner</strong> component into the page. Set the course title, course type and UCAS code in the dialog, and pick a background image via the DAM path picker.</p><ul><li>Toggle the alert banner on/off from the Style tab when applications open or close</li><li>Keep the alert message to one or two sentences — it does not scroll</li><li>UCAS code is optional — leave blank to hide that segment</li></ul>',
+    designSpecsNotes: '<p>Frame: <code>1440×400</code> desktop, full-bleed. Heading: <code>Lora</code> 42px / line-height 1.3 / -0.21px tracking, white. Subtitle row: 22px, bold UCAS code segment. Overlay: <code>linear-gradient(180deg, rgba(9,21,31,.79) 0%, rgba(9,21,31,.79) 5.668%, rgba(9,21,31,0) 23.381%, rgba(9,21,31,.79) 75.095%, rgba(9,21,31,.79) 100%)</code>. Alert banner: white card, <code>#10263b</code> body text, 16px, icon badge bordered <code>#cfd4d8</code>.</p>',
     stories: [
-      { id: 'default', name: 'Default', description: 'Standard hero with dark overlay', args: { title: 'Experience More with AEM', subtitle: 'Build faster, author smarter.', alignment: 'left', overlay: 'dark', ctaText: 'Get Started', ctaSecondaryText: 'Learn More', bgColor: '#2563eb' } },
-      { id: 'centered', name: 'Centered', description: 'Centre-aligned content', args: { title: 'Welcome to Our Platform', subtitle: 'Everything you need in one place.', alignment: 'center', overlay: 'dark', ctaText: 'Explore Now', ctaSecondaryText: '', bgColor: '#7c3aed' } },
-      { id: 'no-overlay', name: 'No Overlay', description: 'No background overlay', args: { title: 'Clean & Modern', subtitle: 'Minimal style hero variant.', alignment: 'left', overlay: 'none', ctaText: 'Discover', ctaSecondaryText: 'Watch Video', bgColor: '#059669' } },
-      { id: 'dark', name: 'Dark Background', description: 'Dark colour scheme', args: { title: 'The AEM Design System', subtitle: 'Enterprise-grade components.', alignment: 'left', overlay: 'dark', ctaText: 'Get Access', ctaSecondaryText: 'Documentation', bgColor: '#111827' } },
+      {
+        id: 'with-alert',
+        name: 'With Alert Banner',
+        description: 'Course hero with the application-status alert shown',
+        args: {
+          title: 'Course title',
+          courseType: 'Bachelor of Engineering with Honors',
+          ucasCode: 'H402',
+          bgImage: '',
+          showAlert: true,
+          alertText: 'This course is now closed for UK and International applications for 2025 entry. You can start an application for 2026 entry in UCAS, on 14 May 2025.',
+        },
+      },
+      {
+        id: 'without-alert',
+        name: 'Without Alert Banner',
+        description: 'Course hero with no alert — used when applications are open',
+        args: {
+          title: 'Course title',
+          courseType: 'Bachelor of Engineering with Honors',
+          ucasCode: 'H402',
+          bgImage: '',
+          showAlert: false,
+          alertText: '',
+        },
+      },
     ],
     controls: [
-      { key: 'title', label: 'Title', type: 'text', defaultValue: 'Experience More with AEM' },
-      { key: 'subtitle', label: 'Subtitle', type: 'text', defaultValue: 'Build faster, author smarter.' },
-      { key: 'alignment', label: 'Alignment', type: 'select', defaultValue: 'left', options: ['left', 'center'] },
-      { key: 'overlay', label: 'Overlay', type: 'select', defaultValue: 'dark', options: ['none', 'dark', 'light'] },
-      { key: 'ctaText', label: 'Primary CTA', type: 'text', defaultValue: 'Get Started' },
-      { key: 'ctaSecondaryText', label: 'Secondary CTA', type: 'text', defaultValue: 'Learn More' },
-      { key: 'bgColor', label: 'Background Colour', type: 'color', defaultValue: '#2563eb' },
+      { key: 'title', label: 'Title', type: 'text', defaultValue: 'Course title' },
+      { key: 'courseType', label: 'Course Type', type: 'text', defaultValue: 'Bachelor of Engineering with Honors' },
+      { key: 'ucasCode', label: 'UCAS Code', type: 'text', defaultValue: 'H402' },
+      { key: 'showAlert', label: 'Show Alert Banner', type: 'boolean', defaultValue: true },
+      { key: 'alertText', label: 'Alert Text', type: 'text', defaultValue: 'This course is now closed for UK and International applications for 2025 entry. You can start an application for 2026 entry in UCAS, on 14 May 2025.' },
+      { key: 'bgImage', label: 'Background Image URL', type: 'text', defaultValue: '' },
     ],
   },
   {

@@ -1,52 +1,72 @@
 'use client';
 
+import { Lora } from 'next/font/google';
+import { InformationCircleIcon } from '@heroicons/react/24/outline';
+
+const lora = Lora({ subsets: ['latin'], weight: ['400'] });
+
 interface HeroBannerPreviewProps {
   title?: string;
-  subtitle?: string;
-  alignment?: 'left' | 'center';
-  overlay?: 'none' | 'dark' | 'light';
-  ctaText?: string;
-  ctaSecondaryText?: string;
-  bgColor?: string;
+  courseType?: string;
+  ucasCode?: string;
+  bgImage?: string;
+  showAlert?: boolean;
+  alertText?: string;
 }
 
-export function HeroBannerPreview({
-  title = 'Experience More with AEM',
-  subtitle = 'Build faster, author smarter.',
-  alignment = 'left',
-  overlay = 'dark',
-  ctaText = 'Get Started',
-  ctaSecondaryText = 'Learn More',
-  bgColor = '#2563eb',
-}: HeroBannerPreviewProps) {
-  const overlayClass =
-    overlay === 'dark' ? 'bg-black/50' : overlay === 'light' ? 'bg-white/30' : '';
+const OVERLAY_GRADIENT =
+  'linear-gradient(180deg, rgba(9,21,31,0.79) 0%, rgba(9,21,31,0.79) 5.668%, rgba(9,21,31,0) 23.381%, rgba(9,21,31,0.79) 75.095%, rgba(9,21,31,0.79) 100%)';
 
+// Sky-toned placeholder used until a real photo is supplied via `bgImage`.
+const FALLBACK_BACKGROUND = 'linear-gradient(180deg, #0b1a24 0%, #0f2f42 28%, #1c5478 52%, #0f2f42 78%, #0b1a24 100%)';
+
+export function HeroBannerPreview({
+  title = 'Course title',
+  courseType = 'Bachelor of Engineering with Honors',
+  ucasCode = 'H402',
+  bgImage = '',
+  showAlert = true,
+  alertText = 'This course is now closed for UK and International applications for 2025 entry. You can start an application for 2026 entry in UCAS, on 14 May 2025.',
+}: HeroBannerPreviewProps) {
   return (
     <div
-      className="relative w-full min-h-[320px] flex items-center overflow-hidden rounded-lg"
-      style={{ backgroundColor: bgColor }}
+      className="relative w-full min-h-[400px] flex flex-col justify-end overflow-hidden rounded-lg px-10 py-8"
+      style={{
+        backgroundImage: bgImage ? `url(${bgImage})` : FALLBACK_BACKGROUND,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
     >
-      {overlayClass && <div className={`absolute inset-0 ${overlayClass}`} />}
-      <div className="absolute right-0 top-0 w-72 h-72 rounded-full bg-white/5 -translate-y-1/3 translate-x-1/3" />
-      <div className="absolute right-16 bottom-0 w-56 h-56 rounded-full bg-white/5 translate-y-1/3" />
+      <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: OVERLAY_GRADIENT }} />
 
-      <div className={`relative z-10 px-10 py-12 max-w-2xl ${alignment === 'center' ? 'mx-auto text-center' : ''}`}>
-        <p className="text-white/70 text-xs font-semibold uppercase tracking-widest mb-3">AEM Component</p>
-        <h1 className="text-4xl font-bold text-white leading-tight mb-4">{title}</h1>
-        {subtitle && <p className="text-white/80 text-lg mb-8">{subtitle}</p>}
-        <div className={`flex gap-3 flex-wrap ${alignment === 'center' ? 'justify-center' : ''}`}>
-          {ctaText && (
-            <button className="px-6 py-3 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-50 transition-colors text-sm shadow">
-              {ctaText}
-            </button>
-          )}
-          {ctaSecondaryText && (
-            <button className="px-6 py-3 border border-white/50 text-white font-semibold rounded-lg hover:bg-white/10 transition-colors text-sm">
-              {ctaSecondaryText}
-            </button>
-          )}
+      <div className="relative z-10 flex flex-col gap-8 w-full">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-start gap-6">
+            <span className="w-px self-stretch bg-white/70" aria-hidden="true" />
+            <h1 className={`${lora.className} text-white text-[42px] leading-[1.3] tracking-[-0.21px]`}>{title}</h1>
+          </div>
+          <div className="flex items-center gap-6 flex-wrap">
+            <span className="w-px self-stretch bg-white/70" aria-hidden="true" />
+            <p className="text-white text-[22px] tracking-[0.33px] whitespace-nowrap">{courseType}</p>
+            {ucasCode && (
+              <>
+                <span className="w-px self-stretch bg-white/70" aria-hidden="true" />
+                <p className="text-white text-[22px] tracking-[0.33px] whitespace-nowrap">
+                  UCAS Code <strong className="font-bold">{ucasCode}</strong>
+                </p>
+              </>
+            )}
+          </div>
         </div>
+
+        {showAlert && alertText && (
+          <div className="flex items-center gap-4 bg-white rounded-lg p-4">
+            <span className="flex items-center justify-center w-12 h-12 rounded-full border border-[#cfd4d8] shrink-0">
+              <InformationCircleIcon className="w-5 h-5 text-[#10263b]" />
+            </span>
+            <p className="text-[#10263b] text-base leading-tight tracking-[0.24px]">{alertText}</p>
+          </div>
+        )}
       </div>
     </div>
   );
