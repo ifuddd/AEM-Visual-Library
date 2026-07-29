@@ -38,7 +38,7 @@ export const mockComponents: MockComponent[] = [
     id: '1',
     slug: 'hero-banner',
     title: 'Hero Banner',
-    description: 'Large top-of-page banner with background image, headline, subtitle, and up to two CTA buttons. Supports multiple alignment options and overlay styles.',
+    description: 'Full-bleed course page hero with a photo background, dark gradient overlay, course title/type/UCAS code, and an optional info alert banner for application-status messaging.',
     tags: [],
     status: ComponentStatus.READY,
     ownerEmail: 'marketing-platform@example.com',
@@ -48,51 +48,36 @@ export const mockComponents: MockComponent[] = [
     variants: [
       {
         id: 'v1',
-        name: 'Full Width',
-        description: 'Banner spans entire viewport width with edge-to-edge background',
-        imageUrl: '/api/placeholder/800x400?bg=2563eb&fg=ffffff&text=Full+Width+Variant',
+        name: 'Default',
+        description: 'Course hero with the application-status alert and UCAS code shown',
+        imageUrl: '/images/hero-banner.png',
         order: 0,
       },
-      {
-        id: 'v2',
-        name: 'Contained',
-        description: 'Banner constrained to max-width container with padding',
-        imageUrl: '/api/placeholder/800x400?bg=1e40af&fg=ffffff&text=Contained+Variant',
-        order: 1,
-      },
-      {
-        id: 'v3',
-        name: 'Minimal',
-        description: 'Minimalist banner with reduced content and centered alignment',
-        order: 2,
-      },
     ],
-    authoringNotes: '<h2>Usage Guidelines</h2><p>Use the hero banner for high-impact messaging at the top of landing pages and campaign pages. Ensure images are high quality (minimum 1920x1080) and text maintains proper contrast for accessibility.</p><h3>Best Practices</h3><ul><li>Keep headlines under 60 characters</li><li>Use action-oriented CTA text</li><li>Test overlay options for text legibility</li></ul>',
-    designSpecsNotes: '<h2>Design Specifications</h2><h3>Spacing</h3><ul><li>Padding: 80px top/bottom, 40px left/right</li><li>Content max-width: 1200px</li><li>Headline margin-bottom: 16px</li><li>Subtitle margin-bottom: 32px</li></ul><h3>Typography</h3><ul><li>Headline: 48px, font-weight: 700, line-height: 1.2</li><li>Subtitle: 20px, font-weight: 400, line-height: 1.5</li></ul><h3>Touch UI Dialog</h3><p>Dialog contains tabs for Content, Design, and Advanced settings. Image asset uses DAM path browser with preview.</p>',
+    authoringNotes: '<h2>Usage Guidelines</h2><p>Drag and drop the <strong>Hero Banner</strong> component into the page. Set the course title, course type and UCAS code in the dialog, and pick a background image via the DAM path picker.</p><h3>Best Practices</h3><ul><li>Toggle the alert banner on/off from the Style tab when applications open or close</li><li>Keep the alert message to one or two sentences, since it does not scroll</li><li>UCAS code is optional, leave blank or turn off "Show UCAS Code" to hide that segment</li></ul>',
+    designSpecsNotes: '<h2>Design Specifications</h2><h3>Layout</h3><ul><li>Frame: 1440x400 desktop, full-bleed</li><li>Heading: Lora, 42px, line-height 1.3, -0.21px tracking, white</li><li>Subtitle row: 22px, bold UCAS code segment</li></ul><h3>Overlay</h3><p>linear-gradient(180deg, rgba(9,21,31,.79) 0%, rgba(9,21,31,.79) 5.668%, rgba(9,21,31,0) 23.381%, rgba(9,21,31,.79) 75.095%, rgba(9,21,31,.79) 100%)</p><h3>Alert Banner</h3><ul><li>White card, #10263b body text, 16px</li><li>Icon badge bordered #cfd4d8</li></ul><h3>Touch UI Dialog</h3><p>Dialog contains the course title, course type, UCAS code, alert toggle and message, and a DAM path picker for the background image.</p>',
     azureDevOpsWorkItem: 'https://dev.azure.com/example/project/_workitems/edit/12345',
-    figmaLink: 'https://www.figma.com/file/abc123/Design-System?node-id=100-200',
+    figmaLink: 'https://www.figma.com/design/nqhhQSjIlZbPChqOfdO3TQ/%E2%9C%A8-Design-System-for-AEM-v2-%E2%9C%A8?node-id=6035-74549',
 
-    aemComponentPath: '/apps/myproject/components/hero-banner',
+    aemComponentPath: '/apps/aem-visual-library/components/content/hero-banner',
     aemDialogSchema: {
-      title: { type: 'textfield', required: true },
-      subtitle: { type: 'textarea', maxlength: 200 },
-      image: { type: 'pathbrowser', rootPath: '/content/dam' },
-      ctaPrimaryText: { type: 'textfield', maxlength: 25 },
-      ctaPrimaryLink: { type: 'pathfield' },
-      ctaSecondaryText: { type: 'textfield', maxlength: 25 },
-      ctaSecondaryLink: { type: 'pathfield' },
-      alignment: { type: 'select', options: ['left', 'center'] },
-      overlay: { type: 'select', options: ['none', 'dark', 'light'] },
+      title: { type: 'textfield', required: true, description: 'Course title heading text' },
+      courseType: { type: 'textfield', description: 'Course type or qualification line, e.g. Bachelor of Engineering with Honors' },
+      ucasCode: { type: 'textfield', description: 'UCAS code value shown next to the label' },
+      showUcasCode: { type: 'checkbox', description: 'Show or hide the UCAS code segment and its divider' },
+      showAlert: { type: 'checkbox', description: 'Show or hide the application-status alert banner' },
+      alertText: { type: 'textarea', maxlength: 300, description: 'Alert banner message text' },
+      bgImage: { type: 'pathbrowser', rootPath: '/content/dam', description: 'Background photo asset' },
     },
-    aemAllowedChildren: ['teaser', 'cta-button'],
+    aemAllowedChildren: [],
     aemTemplateConstraints: {
       allowedParents: ['responsivegrid'],
       maxItems: 1,
     },
     aemLimitations: [
-      'No video support in authoring dialog',
-      'Image ratio fixed to 16:9',
-      'Maximum 2 CTA buttons',
+      'Background image is fixed per page, with no per-breakpoint cropping control',
+      'Alert banner supports a single message only, no dismiss or close action',
+      'UCAS code display expects exactly one code value',
     ],
     thumbnailUrl: '/images/hero-banner.png',
     lastSyncedAt: new Date('2024-01-01'),
@@ -105,113 +90,65 @@ export const mockComponents: MockComponent[] = [
     id: '2',
     slug: 'cta-button',
     title: 'CTA Button',
-    description: 'Call-to-action button component with multiple style variants (primary, secondary, tertiary, ghost) and size options. Supports internal and external links.',
+    description: 'Pill-shaped call-to-action button with Primary (filled) and Secondary (outlined) styles, three sizes, and leading and trailing icon slots.',
     tags: [],
     status: ComponentStatus.READY,
-    ownerEmail: 'design-system@example.com',
-    ownerTeam: 'Design System',
+    ownerEmail: 'core-components@example.com',
+    ownerTeam: 'Core Components',
 
-    // New editing fields with state images
+    // New editing fields
     variants: [
       {
         id: 'v1',
         name: 'Primary',
-        description: 'High-emphasis button for the most important action on the page. Use solid background with high contrast.',
+        description: 'Filled primary button',
+        imageUrl: '/images/cta-button.png',
         order: 0,
-        stateImages: {
-          default: '/api/placeholder/400x100?bg=059669&fg=ffffff&text=Primary+Default',
-          hover: '/api/placeholder/400x100?bg=047857&fg=ffffff&text=Primary+Hover',
-          focus: '/api/placeholder/400x100?bg=065f46&fg=ffffff&text=Primary+Focus',
-          disabled: '/api/placeholder/400x100?bg=d1d5db&fg=9ca3af&text=Primary+Disabled',
-        },
       },
       {
         id: 'v2',
         name: 'Secondary',
-        description: 'Medium-emphasis button for supporting actions. Outlined style with transparent background.',
+        description: 'Outlined secondary button',
+        imageUrl: '/images/cta-button-secondary.png',
         order: 1,
-        stateImages: {
-          default: '/api/placeholder/400x100?bg=ffffff&fg=059669&text=Secondary+Default',
-          hover: '/api/placeholder/400x100?bg=f0fdf4&fg=059669&text=Secondary+Hover',
-          focus: '/api/placeholder/400x100?bg=dcfce7&fg=059669&text=Secondary+Focus',
-          disabled: '/api/placeholder/400x100?bg=f9fafb&fg=d1d5db&text=Secondary+Disabled',
-        },
-      },
-      {
-        id: 'v3',
-        name: 'Tertiary',
-        description: 'Low-emphasis button for less critical actions. Text-based style with minimal decoration.',
-        order: 2,
-        stateImages: {
-          default: '/api/placeholder/400x100?bg=ffffff&fg=6b7280&text=Tertiary+Default',
-          hover: '/api/placeholder/400x100?bg=f9fafb&fg=4b5563&text=Tertiary+Hover',
-          focus: '/api/placeholder/400x100?bg=f3f4f6&fg=374151&text=Tertiary+Focus',
-          disabled: '/api/placeholder/400x100?bg=ffffff&fg=d1d5db&text=Tertiary+Disabled',
-        },
-      },
-      {
-        id: 'v4',
-        name: 'Ghost',
-        description: 'Minimal button with transparent background. Use on colored backgrounds or when maximum subtlety is needed.',
-        order: 3,
-        stateImages: {
-          default: '/api/placeholder/400x100?bg=ffffff&fg=059669&text=Ghost+Default',
-          hover: '/api/placeholder/400x100?bg=f0fdf4&fg=059669&text=Ghost+Hover',
-          focus: '/api/placeholder/400x100?bg=dcfce7&fg=059669&text=Ghost+Focus',
-          disabled: '/api/placeholder/400x100?bg=ffffff&fg=d1d5db&text=Ghost+Disabled',
-        },
       },
     ],
-    authoringNotes: '<h2>CTA Button Component</h2><h3>When to Use</h3><p><strong>✅ Use CTA Button for:</strong></p><ul><li>Primary actions (sign up, download, submit)</li><li>Secondary actions (learn more, cancel)</li><li>Navigation to key pages</li><li>Form submissions</li><li>Downloads and external links</li></ul><p><strong>❌ Do NOT use for:</strong></p><ul><li>Text links within paragraphs (use standard link)</li><li>Navigation menus (use navigation component)</li><li>Inline actions within tables (use action icons)</li></ul><h3>Variant Guidelines</h3><ul><li><strong>Primary:</strong> Main action you want users to take (max 1 per page section)</li><li><strong>Secondary:</strong> Supporting primary actions or standalone important actions</li><li><strong>Tertiary:</strong> Multiple actions with visual hierarchy needed</li><li><strong>Ghost:</strong> On colored backgrounds or maximum subtlety</li></ul><h3>Best Practices</h3><ul><li>Keep button text under 30 characters</li><li>Use action verbs (Get Started, Download, Learn More)</li><li>Avoid generic text like "Click Here" or "Submit"</li><li>Ensure minimum 44x44px touch target for mobile</li><li>Maintain 4.5:1 contrast ratio for accessibility</li></ul><h3>Accessibility</h3><ul><li>All buttons are keyboard accessible (Tab navigation)</li><li>Focus indicators are always visible</li><li>Screen reader compatible</li><li>Meets WCAG 2.1 AA standards</li></ul>',
-    designSpecsNotes: '<h2>Design Specifications</h2><h3>Typography</h3><ul><li>Font weight: 600 (semibold)</li><li>Font size: 0.875rem (small), 1rem (medium), 1.125rem (large)</li><li>Line height: 1.5</li><li>Letter spacing: 0.02em</li></ul><h3>Spacing</h3><ul><li>Small: 0.5rem (top/bottom), 1rem (left/right)</li><li>Medium: 0.75rem (top/bottom), 1.5rem (left/right)</li><li>Large: 1rem (top/bottom), 2rem (left/right)</li><li>Icon gap: 0.5rem</li></ul><h3>Colors (Primary Variant)</h3><ul><li>Background (default): #059669 (green-600)</li><li>Background (hover): #047857 (green-700)</li><li>Text: #FFFFFF (white)</li><li>Focus ring: 2px solid currentColor, 2px offset</li></ul><h3>Borders & Corners</h3><ul><li>Border radius: 0.375rem (6px)</li><li>Secondary border: 2px solid currentColor</li></ul><h3>Touch UI Dialog</h3><p>The Touch UI dialog contains the following configurable fields:</p><ul><li><strong>Button Text</strong> (textfield, required, max 30 chars)</li><li><strong>Link</strong> (pathfield, required)</li><li><strong>Variant</strong> (select: primary, secondary, tertiary, ghost)</li><li><strong>Size</strong> (select: small, medium, large)</li><li><strong>Open in New Tab</strong> (checkbox)</li><li><strong>Icon</strong> (select: none, arrow-right, download, external)</li></ul>',
-    figmaLink: 'https://www.figma.com/design/nqhhQSjIlZbPChqOfdO3TQ/%E2%9C%A8-Design-System-for-AEM-v2-%E2%9C%A8?node-id=15310-1885',
+    authoringNotes: '<h2>CTA Button Component</h2><h3>When to Use</h3><ul><li><strong>Primary</strong> is filled and used for the main action on a page</li><li><strong>Secondary</strong> is outlined and used for a supporting action</li></ul><h3>Best Practices</h3><ul><li>Choose Primary or Secondary type from the dialog, set the label, and pick a size</li><li>Leading and trailing icon slots are optional</li><li>Keep the label short and action-oriented</li></ul>',
+    designSpecsNotes: '<h2>Design Specifications</h2><h3>Shape</h3><p>Fully rounded pill, border-radius: 56px.</p><h3>Sizes</h3><ul><li>Small: 16px/12px padding</li><li>Medium: 24px/16px padding</li><li>Large: 32px/16px padding</li><li>Gap between icon and label: 16px at every size</li></ul><h3>Colors</h3><ul><li>Primary: fill #deb406, text #10263b</li><li>Secondary: border #cfd4d8, text #10263b</li></ul><h3>Touch UI Dialog</h3><p>The Touch UI dialog contains the following configurable fields:</p><ul><li><strong>Label</strong> (textfield, required)</li><li><strong>Variant</strong> (select: primary, secondary)</li><li><strong>Size</strong> (select: sm, md, lg)</li><li><strong>Disabled</strong> (checkbox)</li></ul>',
+    figmaLink: 'https://www.figma.com/design/nqhhQSjIlZbPChqOfdO3TQ/%E2%9C%A8-Design-System-for-AEM-v2-%E2%9C%A8?node-id=68-12755',
 
-    aemComponentPath: '/apps/myproject/components/cta-button',
+    aemComponentPath: '/apps/aem-visual-library/components/content/cta-button',
     aemDialogSchema: {
-      text: {
+      label: {
         type: 'textfield',
-        label: 'Button Text',
+        label: 'Label',
         required: true,
         maxlength: 30,
         description: 'Use action verbs. Keep concise.'
       },
-      link: {
-        type: 'pathfield',
-        label: 'Link URL',
-        required: true,
-        description: 'Internal path or external URL'
-      },
       variant: {
         type: 'select',
-        label: 'Button Variant',
-        options: ['primary', 'secondary', 'tertiary', 'ghost'],
+        label: 'Variant',
+        options: ['primary', 'secondary'],
         default: 'primary',
-        description: 'Visual style - use primary for main actions'
+        description: 'Primary is filled, Secondary is outlined'
       },
       size: {
         type: 'select',
-        label: 'Button Size',
-        options: ['small', 'medium', 'large'],
-        default: 'medium'
+        label: 'Size',
+        options: ['sm', 'md', 'lg'],
+        default: 'md',
+        description: 'Controls padding, text size, and icon size'
       },
-      openInNewTab: {
+      disabled: {
         type: 'checkbox',
-        label: 'Open in New Tab',
-        description: 'Check for external links or PDFs'
-      },
-      icon: {
-        type: 'select',
-        label: 'Icon',
-        options: ['none', 'arrow-right', 'download', 'external'],
-        default: 'none'
+        label: 'Disabled',
+        description: 'Renders the button in its disabled state'
       }
     },
     aemLimitations: [
-      'No custom icon upload support - limited to predefined icons',
-      'Button text limited to 30 characters',
-      'No support for multi-line button text',
-      'Icon always appears after text (no left-side icons)',
-      'Cannot disable the button programmatically in Touch UI'
+      'Only Primary and Secondary types are wired up here, Ghost and Text-only types from the Figma library are not yet built',
+      'Label font falls back to the system sans stack since Circular Pro is not available in this environment',
     ],
     thumbnailUrl: '/images/cta-button.png',
     lastSyncedAt: new Date('2024-01-01'),
