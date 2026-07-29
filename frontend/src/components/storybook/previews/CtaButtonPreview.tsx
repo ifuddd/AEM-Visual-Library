@@ -1,51 +1,53 @@
 'use client';
 
+import { Bars3Icon } from '@heroicons/react/24/outline';
+
 interface CtaButtonPreviewProps {
   label?: string;
-  variant?: 'primary' | 'secondary' | 'ghost' | 'link';
+  variant?: 'primary' | 'secondary';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
 }
 
+function TargetIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className={className} aria-hidden="true">
+      <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="10" cy="10" r="4" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="10" cy="10" r="1" fill="currentColor" />
+    </svg>
+  );
+}
+
+const SIZE_STYLES: Record<string, { padding: string; text: string; tracking: string; icon: string }> = {
+  sm: { padding: 'px-4 py-3', text: 'text-xs', tracking: 'tracking-[0.18px]', icon: 'w-3.5 h-3.5' },
+  md: { padding: 'px-6 py-4', text: 'text-base', tracking: 'tracking-[0.24px]', icon: 'w-[18px] h-[18px]' },
+  lg: { padding: 'px-8 py-4', text: 'text-[22px]', tracking: 'tracking-[0.33px]', icon: 'w-5 h-5' },
+};
+
 export function CtaButtonPreview({
-  label = 'Get Started',
+  label = 'Button text',
   variant = 'primary',
   size = 'md',
   disabled = false,
 }: CtaButtonPreviewProps) {
-  const base = 'rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed';
+  const s = SIZE_STYLES[size] ?? SIZE_STYLES.md;
+  const isPrimary = variant === 'primary';
 
-  const sizes: Record<string, string> = {
-    sm: 'px-4 py-2 text-sm',
-    md: 'px-6 py-3 text-base',
-    lg: 'px-8 py-4 text-lg',
-  };
-
-  const variants: Record<string, string> = {
-    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500',
-    secondary: 'bg-primary-100 text-primary-800 hover:bg-primary-200 focus:ring-primary-400',
-    ghost: 'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-300',
-    link: 'text-primary-600 underline hover:text-primary-800 focus:ring-primary-400',
-  };
-
-  const allVariants = ['primary', 'secondary', 'ghost', 'link'] as const;
+  const variantClass = isPrimary
+    ? 'bg-[#deb406] text-[#10263b]'
+    : 'bg-transparent border border-[#cfd4d8] text-[#10263b]';
 
   return (
-    <div className="flex items-center justify-center gap-6 flex-wrap p-8 min-h-[160px]">
-      {allVariants.map((v) => {
-        const isActive = v === variant;
-        return (
-          <div key={v} className={`text-center transition-opacity ${isActive ? '' : 'opacity-30'}`}>
-            <button
-              disabled={disabled && isActive}
-              className={`${base} ${sizes[size]} ${variants[v]}`}
-            >
-              {label}
-            </button>
-            <div className="mt-2 text-xs text-gray-400">{v}</div>
-          </div>
-        );
-      })}
+    <div className="flex items-center justify-center p-8 min-h-[160px]">
+      <button
+        disabled={disabled}
+        className={`inline-flex items-center justify-center gap-4 rounded-full font-medium whitespace-nowrap transition-opacity disabled:opacity-40 disabled:cursor-not-allowed ${s.padding} ${s.text} ${s.tracking} ${variantClass}`}
+      >
+        <Bars3Icon className={s.icon} />
+        <span>{label}</span>
+        <TargetIcon className={s.icon} />
+      </button>
     </div>
   );
 }
