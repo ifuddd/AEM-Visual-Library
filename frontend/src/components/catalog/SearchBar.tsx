@@ -33,6 +33,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
         placeholder="Search components..."
+        autoComplete="off"
         className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
       />
       <svg

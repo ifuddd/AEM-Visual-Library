@@ -21,11 +21,6 @@ function mapToComponent(component: any): Component {
     azureDevOpsWorkItem: component.azureDevOpsWorkItem || null,
     figmaLink: component.figmaLink || null,
 
-    repoLink: component.repoLink || null,
-    azureWikiPath: component.azureWikiPath || null,
-    azureWikiUrl: component.azureWikiUrl || null,
-    figmaLinks: component.figmaLinks,
-
     aemMetadata: {
       componentPath: component.aemComponentPath || null,
       dialogSchema: component.aemDialogSchema || null,
@@ -35,8 +30,6 @@ function mapToComponent(component: any): Component {
     },
     visualAssets: {
       thumbnailUrl: component.thumbnailUrl || null,
-      screenshotAuthorUrl: component.screenshotAuthorUrl || null,
-      screenshotPublishedUrl: component.screenshotPublishedUrl || null,
     },
     lastUpdate: {
       source: component.lastUpdatedSource as any,
@@ -151,8 +144,6 @@ export async function POST(request: NextRequest) {
       designSpecsNotes: data.designSpecsNotes || '',
       azureDevOpsWorkItem: data.azureDevOpsWorkItem || '',
       figmaLink: data.figmaLink || '',
-
-      figmaLinks: [],
 
       lastSyncedAt: new Date(),
       lastUpdatedBy: 'system',

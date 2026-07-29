@@ -51,6 +51,7 @@ export function StorybookSidebar({ components, selectedStoryId, onStorySelect }:
             placeholder="Find component…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            autoComplete="off"
             className="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-200 rounded-md bg-gray-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-400 placeholder-gray-400"
           />
         </div>

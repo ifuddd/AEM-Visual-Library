@@ -13,7 +13,6 @@ export interface StoryDefinition {
   name: string;
   description?: string;
   args: Record<string, any>;
-  imageUrl?: string;
   figmaNodeUrl?: string;
 }
 

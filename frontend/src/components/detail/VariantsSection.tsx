@@ -182,7 +182,7 @@ export function VariantsSection({ variants, setVariants }: VariantsSectionProps)
       <div className="space-y-2">
         {variants.length === 0 ? (
           <div className="text-center py-8 text-gray-500 border border-dashed border-gray-300 rounded-lg">
-            No variants added yet. Click "Add Variant" to create one.
+            No variants added yet. Click &ldquo;Add Variant&rdquo; to create one.
           </div>
         ) : (
           variants.map((variant, index) => {

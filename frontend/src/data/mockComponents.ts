@@ -20,20 +20,12 @@ export interface MockComponent {
   azureDevOpsWorkItem?: string;
   figmaLink?: string;
 
-  // Legacy fields (deprecated)
-  repoLink?: string;
-  azureWikiPath?: string;
-  azureWikiUrl?: string;
-  figmaLinks: string[];
-
   aemComponentPath?: string;
   aemDialogSchema?: any;
   aemAllowedChildren?: string[];
   aemTemplateConstraints?: any;
   aemLimitations?: string[];
   thumbnailUrl?: string;
-  screenshotAuthorUrl?: string;
-  screenshotPublishedUrl?: string;
   lastSyncedAt: Date;
   lastUpdatedBy: string;
   lastUpdatedSource: 'manual' | 'azure';
@@ -80,15 +72,6 @@ export const mockComponents: MockComponent[] = [
     azureDevOpsWorkItem: 'https://dev.azure.com/example/project/_workitems/edit/12345',
     figmaLink: 'https://www.figma.com/file/abc123/Design-System?node-id=100-200',
 
-    // Legacy fields
-    repoLink: 'https://github.com/example/aem-components/tree/main/hero-banner',
-    azureWikiPath: '/Components/Hero-Banner',
-    azureWikiUrl: 'https://dev.azure.com/example/_wiki/wikis/Components/Hero-Banner',
-    figmaLinks: [
-      'https://www.figma.com/file/abc123/Design-System?node-id=100-200',
-      'https://www.figma.com/file/abc123/Design-System?node-id=100-250',
-    ],
-
     aemComponentPath: '/apps/myproject/components/hero-banner',
     aemDialogSchema: {
       title: { type: 'textfield', required: true },
@@ -112,8 +95,6 @@ export const mockComponents: MockComponent[] = [
       'Maximum 2 CTA buttons',
     ],
     thumbnailUrl: '/images/hero-banner.png',
-    screenshotAuthorUrl: '/api/placeholder/1200x800?bg=1e40af&fg=ffffff&text=Hero+Author+View',
-    screenshotPublishedUrl: '/api/placeholder/1200x800?bg=1e3a8a&fg=ffffff&text=Hero+Published',
     lastSyncedAt: new Date('2024-01-01'),
     lastUpdatedBy: 'sarah.designer@example.com',
     lastUpdatedSource: 'azure',
@@ -185,11 +166,6 @@ export const mockComponents: MockComponent[] = [
     designSpecsNotes: '<h2>Design Specifications</h2><h3>Typography</h3><ul><li>Font weight: 600 (semibold)</li><li>Font size: 0.875rem (small), 1rem (medium), 1.125rem (large)</li><li>Line height: 1.5</li><li>Letter spacing: 0.02em</li></ul><h3>Spacing</h3><ul><li>Small: 0.5rem (top/bottom), 1rem (left/right)</li><li>Medium: 0.75rem (top/bottom), 1.5rem (left/right)</li><li>Large: 1rem (top/bottom), 2rem (left/right)</li><li>Icon gap: 0.5rem</li></ul><h3>Colors (Primary Variant)</h3><ul><li>Background (default): #059669 (green-600)</li><li>Background (hover): #047857 (green-700)</li><li>Text: #FFFFFF (white)</li><li>Focus ring: 2px solid currentColor, 2px offset</li></ul><h3>Borders & Corners</h3><ul><li>Border radius: 0.375rem (6px)</li><li>Secondary border: 2px solid currentColor</li></ul><h3>Touch UI Dialog</h3><p>The Touch UI dialog contains the following configurable fields:</p><ul><li><strong>Button Text</strong> (textfield, required, max 30 chars)</li><li><strong>Link</strong> (pathfield, required)</li><li><strong>Variant</strong> (select: primary, secondary, tertiary, ghost)</li><li><strong>Size</strong> (select: small, medium, large)</li><li><strong>Open in New Tab</strong> (checkbox)</li><li><strong>Icon</strong> (select: none, arrow-right, download, external)</li></ul>',
     figmaLink: 'https://www.figma.com/design/nqhhQSjIlZbPChqOfdO3TQ/%E2%9C%A8-Design-System-for-AEM-v2-%E2%9C%A8?node-id=15310-1885',
 
-    // Legacy fields
-    repoLink: 'https://github.com/example/aem-components/tree/main/cta-button',
-    azureWikiPath: '/Components/CTA-Button',
-    figmaLinks: ['https://www.figma.com/design/nqhhQSjIlZbPChqOfdO3TQ/%E2%9C%A8-Design-System-for-AEM-v2-%E2%9C%A8?node-id=15310-1885'],
-
     aemComponentPath: '/apps/myproject/components/cta-button',
     aemDialogSchema: {
       text: {
@@ -238,8 +214,6 @@ export const mockComponents: MockComponent[] = [
       'Cannot disable the button programmatically in Touch UI'
     ],
     thumbnailUrl: '/images/cta-button.png',
-    screenshotAuthorUrl: '/api/placeholder/1200x800?bg=047857&fg=ffffff&text=Button+Author',
-    screenshotPublishedUrl: '/api/placeholder/1200x800?bg=065f46&fg=ffffff&text=Button+Published',
     lastSyncedAt: new Date('2024-01-01'),
     lastUpdatedBy: 'john.developer@example.com',
     lastUpdatedSource: 'azure',
