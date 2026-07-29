@@ -9,6 +9,7 @@ interface HeroBannerPreviewProps {
   title?: string;
   courseType?: string;
   ucasCode?: string;
+  showUcasCode?: boolean;
   bgImage?: string;
   showAlert?: boolean;
   alertText?: string;
@@ -24,6 +25,7 @@ export function HeroBannerPreview({
   title = 'Course title',
   courseType = 'Bachelor of Engineering with Honors',
   ucasCode = 'H402',
+  showUcasCode = true,
   bgImage = '',
   showAlert = true,
   alertText = 'This course is now closed for UK and International applications for 2025 entry. You can start an application for 2026 entry in UCAS, on 14 May 2025.',
@@ -48,7 +50,7 @@ export function HeroBannerPreview({
           <div className="flex items-center gap-6 flex-wrap">
             <span className="w-px self-stretch bg-white/70" aria-hidden="true" />
             <p className="text-white text-[22px] tracking-[0.33px] whitespace-nowrap">{courseType}</p>
-            {ucasCode && (
+            {showUcasCode && ucasCode && (
               <>
                 <span className="w-px self-stretch bg-white/70" aria-hidden="true" />
                 <p className="text-white text-[22px] tracking-[0.33px] whitespace-nowrap">
